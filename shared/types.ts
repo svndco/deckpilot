@@ -17,8 +17,6 @@ export interface Recorder {
   online?: boolean
   lastChecked?: number
   selectedTemplate?: string
-  oscHost?: string  // Companion IP for this recorder
-  oscPort?: number  // Companion OSC port for this recorder
   customText?: string  // Custom text for this recorder
   recordingQuality?: string  // HyperDeck recording codec/quality
   timecode?: string  // Current timecode from HyperDeck

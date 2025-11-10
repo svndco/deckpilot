@@ -34,16 +34,12 @@ export default function PlaybackView({
   const [addForm, setAddForm] = useState({
     name: '',
     ipAddress: '',
-    oscHost: '127.0.0.1',
-    oscPort: 8013,
     recordingQuality: 'ProRes422HQ',
     selectedTemplate: '2'
   })
   const [editForm, setEditForm] = useState({
     name: '',
     ipAddress: '',
-    oscHost: '127.0.0.1',
-    oscPort: 8013,
     recordingQuality: 'ProRes422HQ'
   })
 
@@ -160,8 +156,6 @@ export default function PlaybackView({
       enabled: true,
       shotNumber: 1,
       takeNumber: 1,
-      oscHost: addForm.oscHost,
-      oscPort: addForm.oscPort,
       recordingQuality: addForm.recordingQuality,
       selectedTemplate: addForm.selectedTemplate
     }
@@ -169,8 +163,6 @@ export default function PlaybackView({
     setAddForm({
       name: '',
       ipAddress: '',
-      oscHost: '127.0.0.1',
-      oscPort: 8013,
       recordingQuality: 'ProRes422HQ',
       selectedTemplate: '2'
     })
@@ -182,8 +174,6 @@ export default function PlaybackView({
     setEditForm({
       name: recorder.name,
       ipAddress: recorder.ipAddress,
-      oscHost: recorder.oscHost || '127.0.0.1',
-      oscPort: recorder.oscPort || 8013,
       recordingQuality: recorder.recordingQuality || 'ProRes422HQ'
     })
     setDropdownOpen(null)
@@ -197,8 +187,6 @@ export default function PlaybackView({
         ...recorder,
         name: editForm.name,
         ipAddress: editForm.ipAddress,
-        oscHost: editForm.oscHost,
-        oscPort: editForm.oscPort,
         recordingQuality: editForm.recordingQuality
       })
     }
@@ -271,24 +259,6 @@ export default function PlaybackView({
             onChange={e => setAddForm(prev => ({ ...prev, ipAddress: e.target.value }))}
           />
           <div className="input-with-label">
-            <span className="input-label">OSC Client:</span>
-            <div className="osc-client-inputs">
-              <input
-                type="text"
-                placeholder="127.0.0.1"
-                value={addForm.oscHost}
-                onChange={e => setAddForm(prev => ({ ...prev, oscHost: e.target.value }))}
-              />
-              <span className="osc-separator">:</span>
-              <input
-                type="number"
-                placeholder="8013"
-                value={addForm.oscPort}
-                onChange={e => setAddForm(prev => ({ ...prev, oscPort: parseInt(e.target.value) || 8013 }))}
-              />
-            </div>
-          </div>
-          <div className="input-with-label">
             <span className="input-label">Codec:</span>
             <select
               value={addForm.recordingQuality}
@@ -360,24 +330,6 @@ export default function PlaybackView({
                   value={editForm.ipAddress}
                   onChange={e => setEditForm(prev => ({ ...prev, ipAddress: e.target.value }))}
                 />
-                <div className="input-with-label">
-                  <span className="input-label">OSC:</span>
-                  <div className="osc-client-inputs">
-                    <input
-                      type="text"
-                      placeholder="127.0.0.1"
-                      value={editForm.oscHost}
-                      onChange={e => setEditForm(prev => ({ ...prev, oscHost: e.target.value }))}
-                    />
-                    <span className="osc-separator">:</span>
-                    <input
-                      type="number"
-                      placeholder="8013"
-                      value={editForm.oscPort}
-                      onChange={e => setEditForm(prev => ({ ...prev, oscPort: parseInt(e.target.value) || 8013 }))}
-                    />
-                  </div>
-                </div>
                 <div className="input-with-label">
                   <span className="input-label">Codec:</span>
                   <select
@@ -534,10 +486,6 @@ export default function PlaybackView({
                 <div className="info-row">
                   <span className="info-label">Custom:</span>
                   <span className="info-value">{recorder.customText || '-'}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">OSC:</span>
-                  <span className="info-value">{recorder.oscHost}:{recorder.oscPort}</span>
                 </div>
               </div>
             </div>

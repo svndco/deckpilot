@@ -1,8 +1,8 @@
-# Deck Pilot - OSC Command Reference
+# DeckPilot - OSC Command Reference
 
 ## Overview
 
-Deck Pilot uses OSC (Open Sound Control) for bidirectional communication with Bitfocus Companion. This allows you to trigger take name updates from Stream Deck buttons and receive feedback about current take names.
+DeckPilot uses OSC (Open Sound Control) for bidirectional communication with Bitfocus Companion. This allows you to trigger take name updates from Stream Deck buttons and receive feedback about current take names.
 
 ## Port Configuration
 
@@ -13,7 +13,7 @@ Deck Pilot uses OSC (Open Sound Control) for bidirectional communication with Bi
 
 ### Outgoing Feedback (DeckPilot → Companion Module)
 - **Default Port**: 8014
-- **Configurable in**: Settings → OSC Port
+- **Configurable in**: Settings → OSC Port  
 - **Purpose**: Send take name updates, shot/take numbers to DeckPilot Companion module
 - **Format**: `/deckpilot/{recorder_name}` with 4 arguments (take name, shot num, take num, recorder name)
 
@@ -217,7 +217,7 @@ Each recorder can be configured independently:
 - Check OSC Listener is enabled in Settings
 - Verify Listener Port is 8012 (or your configured port)
 - Check Companion is sending to correct IP:port (127.0.0.1:8012)
-- Look at Deck Pilot logs for "Received OSC:" messages
+- Look at DeckPilot logs for "Received OSC:" messages
 
 ### Feedback not showing in Companion
 - Verify DeckPilot Companion module is installed and enabled
@@ -251,7 +251,7 @@ Each recorder can be configured independently:
 - **Arguments**: Typed (string, int, float)
 
 ### Status Monitoring
-Deck Pilot continuously monitors:
+DeckPilot continuously monitors:
 - Recorder online/offline status
 - Current timecode
 - Transport status (record/play/preview/stopped)

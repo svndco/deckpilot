@@ -53,15 +53,11 @@ export default function MonitorView({
   const [newRecorder, setNewRecorder] = useState({
     name: '',
     ipAddress: '',
-    formatType: 'broadcast' as RecorderFormat['type'],
-    oscHost: '127.0.0.1',
-    oscPort: '8013'
+    formatType: 'broadcast' as RecorderFormat['type']
   })
   const [editForm, setEditForm] = useState({
     name: '',
     ipAddress: '',
-    oscHost: '',
-    oscPort: '',
     recordingQuality: ''
   })
 
@@ -77,12 +73,10 @@ export default function MonitorView({
         },
         enabled: true,
         shotNumber: 1,
-        takeNumber: 1,
-        oscHost: newRecorder.oscHost,
-        oscPort: parseInt(newRecorder.oscPort)
+        takeNumber: 1
       }
       onAddRecorder(recorder)
-      setNewRecorder({ name: '', ipAddress: '', formatType: 'broadcast', oscHost: '127.0.0.1', oscPort: '8013' })
+      setNewRecorder({ name: '', ipAddress: '', formatType: 'broadcast' })
       setShowAddForm(false)
     }
   }
@@ -92,8 +86,6 @@ export default function MonitorView({
     setEditForm({
       name: recorder.name,
       ipAddress: recorder.ipAddress,
-      oscHost: recorder.oscHost || '127.0.0.1',
-      oscPort: (recorder.oscPort || 8013).toString(),
       recordingQuality: recorder.recordingQuality || 'ProRes422HQ'
     })
     setDropdownOpen(null)
@@ -108,8 +100,6 @@ export default function MonitorView({
       ...recorder,
       name: editForm.name.trim(),
       ipAddress: editForm.ipAddress.trim(),
-      oscHost: editForm.oscHost.trim() || '127.0.0.1',
-      oscPort: parseInt(editForm.oscPort) || 8013,
       recordingQuality: editForm.recordingQuality || 'ProRes422HQ'
     }
 
@@ -119,7 +109,7 @@ export default function MonitorView({
 
   function handleCancelEdit() {
     setEditingRecorder(null)
-    setEditForm({ name: '', ipAddress: '', oscHost: '', oscPort: '', recordingQuality: '' })
+    setEditForm({ name: '', ipAddress: '', recordingQuality: '' })
   }
 
   return (
@@ -153,18 +143,6 @@ export default function MonitorView({
             value={newRecorder.ipAddress}
             onChange={e => setNewRecorder(prev => ({ ...prev, ipAddress: e.target.value }))}
           />
-          <input
-            type="text"
-            placeholder="OSC Host (Companion)"
-            value={newRecorder.oscHost}
-            onChange={e => setNewRecorder(prev => ({ ...prev, oscHost: e.target.value }))}
-          />
-          <input
-            type="text"
-            placeholder="OSC Port"
-            value={newRecorder.oscPort}
-            onChange={e => setNewRecorder(prev => ({ ...prev, oscPort: e.target.value }))}
-          />
           <select
             value={newRecorder.formatType}
             onChange={e => setNewRecorder(prev => ({ ...prev, formatType: e.target.value as RecorderFormat['type'] }))}
@@ -193,30 +171,12 @@ export default function MonitorView({
             />
           </div>
           <div className="input-with-label">
-            <span className="input-label">OSC Client:</span>
-            <div className="osc-client-inputs">
-              <input
-                type="text"
-                placeholder="IP Address"
-                value={editForm.ipAddress}
-                onChange={e => setEditForm(prev => ({ ...prev, ipAddress: e.target.value }))}
-              />
-              <span className="osc-separator">:</span>
-              <input
-                type="text"
-                placeholder="Port"
-                value={editForm.oscPort}
-                onChange={e => setEditForm(prev => ({ ...prev, oscPort: e.target.value }))}
-              />
-            </div>
-          </div>
-          <div className="input-with-label">
-            <span className="input-label">OSC Host:</span>
+            <span className="input-label">IP Address:</span>
             <input
               type="text"
-              placeholder="OSC Host (Companion)"
-              value={editForm.oscHost}
-              onChange={e => setEditForm(prev => ({ ...prev, oscHost: e.target.value }))}
+              placeholder="HyperDeck IP Address"
+              value={editForm.ipAddress}
+              onChange={e => setEditForm(prev => ({ ...prev, ipAddress: e.target.value }))}
             />
           </div>
           <div className="input-with-label">
@@ -332,11 +292,6 @@ export default function MonitorView({
               </div>
             </div>
 
-            <div className="monitor-card-footer">
-              <div className="monitor-osc-info">
-                <span>OSC: {recorder.oscHost}:{recorder.oscPort}</span>
-              </div>
-            </div>
           </div>
           )
         })}

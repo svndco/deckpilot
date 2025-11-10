@@ -156,43 +156,35 @@ To remove all build artifacts:
 1. Click the AE logo in the top-right corner
 2. Configure settings:
    - **Enable OSC**: Toggle OSC functionality
-   - **Send Host**: Companion IP address (default: 127.0.0.1)
-   - **Send Port**: Companion OSC receive port (default: 8014)
-   - **Receive Port**: This app's OSC port (default: 8015)
+   - **OSC Host**: Companion IP address (default: 127.0.0.1)
+   - **OSC Port**: Companion module port (default: 8014)
+   - **OSC Listener Port**: Incoming command port (default: 8012)
 3. Click "Save"
 
 ### Companion Integration
 
-#### OSC Message Format
-- **Address**: `/ae/deckpilot/{recorder-name}`
-- **Argument**: Take name (string)
+**DeckPilot includes a custom Companion module** that automatically handles OSC communication and creates variables for each recorder.
 
-**Important:** Recorder names are automatically sanitized for OSC addresses:
-- Spaces and special characters are replaced with underscores
-- Example: "Recorder 1" becomes `/ae/deckpilot/Recorder_1`
-- Example: "HYPER-41" becomes `/ae/deckpilot/HYPER_41`
+#### Quick Setup
 
-#### OSC Setup in Companion
+1. **Install the DeckPilot Companion Module** (see installation instructions above)
+2. **Add DeckPilot connection** in Companion:
+   - Module: **DeckPilot** (by aelive)
+   - OSC Listener Port: `8014`
+3. **Use variables** in your Stream Deck buttons:
+   - `$(deckpilot:HYPER_41_take)` - Full take name
+   - `$(deckpilot:HYPER_41_shot_num)` - Shot number
+   - `$(deckpilot:HYPER_41_take_num)` - Take number
 
-1. **Configure Companion's OSC Listener:**
-   - Go to Companion Settings → OSC tab
-   - Set "OSC RX Port" to 8014 (or match your DeckPilot send port)
+#### OSC Ports
+- **Port 8012**: Incoming commands (Companion → DeckPilot)
+- **Port 8014**: Outgoing feedback (DeckPilot → Companion module)
+- All recorders share the same ports; individual recorders are identified by name in OSC paths
 
-2. **Set up OSC Triggers for each recorder:**
-
-**Example: For a recorder named "Recorder 1"**
-
-1. Create a Trigger in Companion:
-   - **Condition**: OSC message received at path `/ae/deckpilot/Recorder_1`
-   - **Action**: Set custom variable `recorder1_take` to `$(osc:latest_received_args)`
-2. Display the variable on a button: `$(internal:custom_recorder1_take)`
-
-**For multiple recorders**, create a trigger for each:
-- `/ae/deckpilot/Recorder_1` → variable `recorder1_take`
-- `/ae/deckpilot/Recorder_2` → variable `recorder2_take`
-- `/ae/deckpilot/HYPER_41` → variable `hyper41_take`
-
-Each recorder sends to its own unique path, preventing conflicts.
+**For detailed setup instructions, see:**
+- [OSC Commands Reference](OSC_COMMANDS.md) - Complete OSC protocol documentation
+- [Stream Deck Setup Guide](STREAMDECK_SETUP.md) - Step-by-step button configuration
+- [OSC Configuration Guide](OSC_CONFIGURATION.md) - Network setup and troubleshooting
 
 ## Configuration Files
 
@@ -240,17 +232,23 @@ deckpilot/
 - **Vite** - Fast build tool
 - **OSC** - Open Sound Control for Companion integration
 
+## Documentation
+
+For detailed information, see:
+
+- **[OSC_COMMANDS.md](OSC_COMMANDS.md)** - Complete OSC protocol reference, command formats, and examples
+- **[STREAMDECK_SETUP.md](STREAMDECK_SETUP.md)** - Stream Deck button configuration and workflows
+- **[OSC_CONFIGURATION.md](OSC_CONFIGURATION.md)** - Network configuration and setup guide
+- **[WARP.md](WARP.md)** - Development guide for AI assistants (architecture, patterns, build commands)
+
 ## Troubleshooting
 
 ### OSC Messages Not Sending
 1. Check OSC is enabled in Settings (click AE logo)
-2. Verify Companion IP and port match your setup
-3. Ensure Companion's OSC listener is configured (Settings → OSC tab)
-4. Check firewall settings aren't blocking UDP port
-5. **Verify OSC address matches sanitized recorder name:**
-   - Check the Electron app console logs for the actual OSC address being sent
-   - Remember: spaces and special characters become underscores
-   - Example: "My Recorder" sends to `/ae/deckpilot/My_Recorder`
+2. Verify DeckPilot Companion module is installed and connection shows green
+3. Check OSC port is set to 8014 in both DeckPilot settings and Companion module config
+4. Check firewall settings aren't blocking UDP ports 8012 and 8014
+5. Review Companion logs for incoming OSC messages
 
 ### Recorders Not Connecting
 1. Verify IP addresses are correct
@@ -265,8 +263,8 @@ deckpilot/
 
 ## Roadmap
 
-- [ ] HyperDeck protocol integration for direct recorder control
-- [ ] Timecode display and sync
+- [x] HyperDeck protocol integration for direct recorder control
+- [x] Timecode display and sync
 - [ ] Multi-camera take synchronization
 - [ ] Export take logs to CSV/Excel
 - [ ] Custom keyboard shortcuts

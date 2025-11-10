@@ -5,80 +5,98 @@ DeckPilot now supports **bidirectional OSC communication**:
 - **Outgoing**: Each recorder sends OSC messages to its own dedicated Companion module instance
 - **Incoming**: DeckPilot listens for OSC commands from Companion to trigger actions like "Set Take" or "Set All"
 
-## Changes Made
+## Architecture
 
-### 1. Per-Recorder OSC Settings
-Each recorder now has its own OSC host and port settings:
-- **OSC Host**: IP address of Companion (default: `127.0.0.1`)
-- **OSC Port**: Port number for that recorder's Companion module instance (default: `8013`, `8014`, `8015`, etc.)
+### Unified OSC Ports
+DeckPilot uses two unified OSC ports for all recorders:
+- **Port 8012**: Incoming commands (Companion → DeckPilot)
+- **Port 8014**: Outgoing feedback (DeckPilot → Companion Module)
 
-### 2. WebSocket Removed
-- All WebSocket communication has been removed
-- Communication is now **OSC-only** (simpler and more reliable)
-- No more port conflicts or connection issues
+All recorders share these ports. Individual recorders are identified by their name in the OSC address path.
 
-### 3. Configuration
+### Communication Protocol
+- **OSC-only** communication (no WebSocket)
+- UDP-based for reliability and simplicity
+- Automatic recorder name sanitization (hyphens → underscores in OSC paths)
+- Works alongside Blackmagic HyperDeck Companion module
 
-#### Adding a New Recorder
-When adding a recorder, you'll see these fields:
-- **Recorder name**: Display name (e.g., "HYPER-41")
-- **IP Address (HyperDeck)**: The HyperDeck's IP address
-- **OSC Host (Companion)**: Companion's IP (usually `127.0.0.1`)
-- **OSC Port**: Unique port for this recorder (e.g., `8013`, `8015`, `8016`)
+## Configuration
 
-#### Setting Up Multiple Recorders
+### DeckPilot Settings
 
-**Example Setup:**
-1. Recorder 1 (HYPER-41):
-   - HyperDeck IP: `10.10.10.41`
-   - OSC Host: `127.0.0.1`
-   - OSC Port: `8013`
+#### Global OSC Settings
+In DeckPilot Settings:
 
-2. Recorder 2 (HYPER-42):
-   - HyperDeck IP: `10.10.10.42`
-   - OSC Host: `127.0.0.1`
-   - OSC Port: `8015`
+**Incoming (Listener)**:
+- **OSC Listener Enabled**: ✓ Checked (default)
+- **Listener Port**: `8012` (receives commands from Companion)
 
-3. Recorder 3 (HYPER-43):
-   - HyperDeck IP: `10.10.10.43`
-   - OSC Host: `127.0.0.1`
-   - OSC Port: `8016`
+**Outgoing (Feedback)**:
+- **OSC Host**: `127.0.0.1` (Companion IP)
+- **OSC Port**: `8014` (sends to DeckPilot Companion module)
 
-### 4. Companion Module Configuration
+#### Adding Recorders
+When adding a recorder:
+- **Recorder Name**: Display name (e.g., "HYPER-41")
+- **IP Address**: The HyperDeck's IP address (e.g., `10.10.10.41`)
+- **Format/Template**: Show, Take, or Custom
 
-Each Companion module instance needs its own unique port:
+**No per-recorder OSC configuration needed** - all recorders share the global OSC settings.
 
-1. **Instance 1** (for HYPER-41):
-   - Connection name: "DP-HD41"
-   - OSC Listener Port: `8013`
-   - OSC Address Pattern: `/ae/deckpilot/HYPER_41` (or `/ae/deckpilot/*` to accept all)
+### Companion Module Setup
 
-2. **Instance 2** (for HYPER-42):
-   - Connection name: "DP-HD42"
-   - OSC Listener Port: `8015`
-   - OSC Address Pattern: `/ae/deckpilot/HYPER_42` (or `/ae/deckpilot/*` to accept all)
+#### 1. Install the DeckPilot Module
 
-3. **Instance 3** (for HYPER-43):
-   - Connection name: "DP-HD43"
-   - OSC Listener Port: `8016`
-   - OSC Address Pattern: `/ae/deckpilot/HYPER_43` (or `/ae/deckpilot/*` to accept all)
+```bash
+cd companion-module-aelive-deckpilot
+npm install --legacy-peer-deps
+npm run build
+npx companion-module-build
+./build_sl_mod  # Auto-installs to Companion
+```
+
+Restart Companion after installation.
+
+#### 2. Add DeckPilot Connection
+
+1. In Companion, add new connection: **DeckPilot** (by aelive)
+2. Configure:
+   - **Connection Name**: "DeckPilot"
+   - **OSC Listener Port**: `8014`
+3. Connection should show green status
+
+**That's it!** One module instance handles all recorders. Variables are created automatically for each recorder as OSC messages arrive.
 
 ## How It Works
 
-1. When you set a take name in DeckPilot for a recorder
-2. DeckPilot sends an OSC message to that recorder's configured host:port
-3. The OSC message format: `/ae/deckpilot/{RECORDER_NAME}` with argument `takeName`
-4. The corresponding Companion module receives it and updates its variables
-5. Companion can then display the take name on buttons, use it in triggers, etc.
+1. When you set a take in DeckPilot (via UI or OSC command)
+2. DeckPilot sends OSC message to `127.0.0.1:8014`
+3. Message format: `/deckpilot/{RECORDER_NAME}` with 4 arguments:
+   - Take name (string)
+   - Shot number (int)
+   - Take number (int)
+   - Recorder name (string)
+4. DeckPilot Companion module receives it and creates/updates variables:
+   - `{RECORDER_NAME}_take`
+   - `{RECORDER_NAME}_shot_num`
+   - `{RECORDER_NAME}_take_num`
+5. Variables are immediately available in Companion buttons and triggers
 
-## Migration
+## Variables
 
-Existing configurations will be automatically migrated:
-- Recorders without OSC settings will get defaults (`127.0.0.1:8013`, `8014`, `8015`, etc.)
-- Old global `sendPort` settings will be converted to the new format
-- No manual intervention required
+The DeckPilot Companion module creates variables automatically:
 
-Note: DeckPilot was formerly known as AE Shot Loader.
+**For recorder "HYPER-41"**:
+- `$(deckpilot:HYPER_41_take)` - Full take name
+- `$(deckpilot:HYPER_41_shot_num)` - Shot number  
+- `$(deckpilot:HYPER_41_take_num)` - Take number
+
+**For recorder "Camera 1"** (sanitized to "Camera_1"):
+- `$(deckpilot:Camera_1_take)`
+- `$(deckpilot:Camera_1_shot_num)`
+- `$(deckpilot:Camera_1_take_num)`
+
+Variables appear as soon as the first OSC message is received for that recorder.
 
 ## OSC Listener (Incoming Commands)
 
@@ -102,10 +120,10 @@ Triggers a take for a specific recorder and sends back metadata.
 
 **Response:** DeckPilot will:
 1. Generate a take name based on the recorder's format
-2. Increment the take number
-3. Send an OSC response to the recorder's configured Companion port
+2. Increment the take number (if in Take mode)
+3. Send OSC message to `127.0.0.1:8014`
 
-**Response Format:** `/deckpilot/response/{RECORDER_NAME}`
+**Response Format:** `/deckpilot/{RECORDER_NAME}`
 - Arg 0 (string): Take name (e.g., "SHOW_S01_T03")
 - Arg 1 (int): Shot number
 - Arg 2 (int): Take number
@@ -137,12 +155,20 @@ Triggers takes for all enabled recorders simultaneously.
 
 ## Troubleshooting
 
-**Error: "EADDRINUSE"**
-- This means two Companion modules are trying to use the same port
-- Make sure each module instance has a **unique** OSC port
-- Check both the DeckPilot recorder settings AND the Companion module config
+**DeckPilot not sending OSC**
+- Check OSC is enabled in DeckPilot Settings
+- Verify OSC Host is `127.0.0.1` and Port is `8014`
+- Look for "Sending OSC:" messages in DeckPilot logs
 
-**OSC not received in Companion**
-- Verify the port numbers match between DeckPilot and Companion
-- Check that the Companion module shows "Ok" status (green)
-- Look at the Companion log for incoming OSC messages
+**Variables not appearing in Companion**
+- Verify DeckPilot Companion module is installed and enabled
+- Check module OSC Listener Port is set to `8014`
+- Ensure module connection shows green status
+- Trigger a take in DeckPilot to send initial OSC message
+- Check Companion logs for messages at `/deckpilot/{recorder_name}`
+
+**Wrong variable names**
+- Recorder names are automatically sanitized for variables
+- Hyphens, spaces, and special characters become underscores
+- "HYPER-41" → `HYPER_41_take`
+- "Camera 1" → `Camera_1_take`
