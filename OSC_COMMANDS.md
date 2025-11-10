@@ -6,22 +6,18 @@ Deck Pilot uses OSC (Open Sound Control) for bidirectional communication with Bi
 
 ## Port Configuration
 
-### Incoming Commands (Companion → Deck Pilot)
+### Incoming Commands (Companion → DeckPilot)
 - **Default Port**: 8012
 - **Configurable in**: Settings → OSC Listener Port
-- **Purpose**: Receive commands to set take names
+- **Purpose**: Receive commands to set take names from Companion/Stream Deck
 
-### Outgoing Feedback (Deck Pilot → Companion)
-- **Default Port**: 8013 (configurable per recorder)
-- **Configurable in**: Monitor view → Edit Recorder → OSC Client port
-- **Purpose**: Send take name updates and status to Companion module
-- **Format**: `/ae/deckpilot/{recorder_name}`
-
-### Companion Module Feedback Port
+### Outgoing Feedback (DeckPilot → Companion Module)
 - **Default Port**: 8014
-- **Configurable in**: Settings → Feedback Port (Companion Module)
-- **Purpose**: Send general status updates to Companion module
-- **Format**: Various status messages
+- **Configurable in**: Settings → OSC Port
+- **Purpose**: Send take name updates, shot/take numbers to DeckPilot Companion module
+- **Format**: `/deckpilot/{recorder_name}` with 4 arguments (take name, shot num, take num, recorder name)
+
+**Note**: All recorders share the same output port (8014). Individual recorders are identified by the recorder name in the OSC address path.
 
 ## Incoming OSC Commands
 
@@ -69,69 +65,78 @@ Deck Pilot uses OSC (Open Sound Control) for bidirectional communication with Bi
 
 ## Outgoing OSC Messages (Feedback)
 
-### Take Name Update (Per-Recorder)
+### Take Update with Metadata
 
-**Address**: `/ae/deckpilot/{RECORDER_NAME}`
-
-**Arguments**:
-- `[0]` (string): Take name
-
-**Sent To**: Each recorder's configured OSC port
-
-**Example**:
-```
-Address: /ae/deckpilot/HYPER_41
-Args: ["ShowName_20251110_S01_T03"]
-```
-
-### Take Response (with metadata)
-
-**Address**: `/deckpilot/response/{RECORDER_NAME}`
+**Address**: `/deckpilot/{RECORDER_NAME}`
 
 **Arguments**:
-- `[0]` (string): Take name
+- `[0]` (string): Take name (e.g., "ShowName_20251110_S01_T03")
 - `[1]` (int): Shot number
 - `[2]` (int): Take number  
-- `[3]` (string): Recorder name
+- `[3]` (string): Recorder name (original, with hyphens)
 
-**Sent To**: Each recorder's configured OSC port
+**Sent To**: `127.0.0.1:8014` (DeckPilot Companion module)
 
 **Example**:
 ```
-Address: /deckpilot/response/HYPER_41
+Address: /deckpilot/HYPER_41
 Args: ["ShowName_20251110_S01_T03", 1, 3, "HYPER-41"]
+Destination: 127.0.0.1:8014
 ```
+
+**Note**: This message is sent automatically whenever:
+- A take is set via the UI
+- A take is set via OSC command (`/deckpilot/{recorder}/setTake` or `/deckpilot/all/setAll`)
+- Shot or take numbers are changed
 
 ## Companion Module Setup
 
-### 1. Configure Companion OSC Listener
+### 1. Install DeckPilot Companion Module
 
-In Companion Settings → OSC tab:
-- Set **OSC RX Port**: 8014 (or your Deck Pilot Feedback Port)
-- Enable **OSC Listener**: ✓
+The DeckPilot Companion module handles OSC communication automatically.
 
-### 2. Create Triggers for Each Recorder
+**Installation**:
+```bash
+cd companion-module-aelive-deckpilot
+npm install --legacy-peer-deps
+npm run build
+npx companion-module-build
+./build_sl_mod  # Auto-installs to Companion
+```
 
-For each recorder, create a trigger:
+Restart Companion after installation.
 
-**Trigger Condition**: OSC message received at `/ae/deckpilot/HYPER_41`
+### 2. Add DeckPilot Connection in Companion
 
-**Trigger Action**: Set custom variable `hyper41_take` to `$(osc:latest_received_args)`
+1. Add new connection: **DeckPilot** (by aelive)
+2. Configure:
+   - **Connection Name**: "DeckPilot"
+   - **OSC Listener Port**: `8014` (must match DeckPilot's output port)
+3. Connection should show green (connected) status
 
-**Example for multiple recorders**:
-- `/ae/deckpilot/HYPER_41` → variable `hyper41_take`
-- `/ae/deckpilot/HYPER_42` → variable `hyper42_take`
-- `/ae/deckpilot/Camera_1` → variable `camera1_take`
+### 3. Use Variables in Stream Deck Buttons
 
-### 3. Create Stream Deck Buttons
+The module automatically creates variables for each recorder:
+
+**Available Variables** (for recorder "HYPER-41"):
+- `$(deckpilot:HYPER_41_take)` - Full take name
+- `$(deckpilot:HYPER_41_shot_num)` - Shot number
+- `$(deckpilot:HYPER_41_take_num)` - Take number
 
 **Set Take Button** (single recorder):
-- **Text**: `Set Take\n$(internal:custom_hyper41_take)`
+- **Text**: `Set Take\n$(deckpilot:HYPER_41_take)`
 - **Action**: Generic OSC → Send `/deckpilot/HYPER_41/setTake` to 127.0.0.1:8012
 
 **Set All Takes Button**:
 - **Text**: `SET ALL`
 - **Action**: Generic OSC → Send `/deckpilot/all/setAll` to 127.0.0.1:8012
+
+**Record with Take Name**:
+- **Text**: `REC\n$(deckpilot:HYPER_41_take)`
+- **Actions**:
+  1. Generic OSC → Send `/deckpilot/HYPER_41/setTake` to 127.0.0.1:8012
+  2. Delay → 150ms
+  3. HyperDeck → Record with filename `$(deckpilot:HYPER_41_take)`
 
 ## Templates and Take Name Formatting
 
@@ -167,14 +172,13 @@ Each recorder can be configured independently:
 - **Shot Number**: Manual or auto-increment
 - **Take Number**: Auto-increments in Take mode
 - **Custom Text**: Additional text for take names
-- **OSC Host**: Companion IP (usually 127.0.0.1)
-- **OSC Port**: Unique port for this recorder's feedback
 
 ### Global Settings
 - **Show Name**: Applied to all recorders using Show or Take templates
 - **Date Format**: 9 different formats (YYYYMMDD, YYYY-MM-DD, etc.)
-- **OSC Listener**: Enable/disable incoming commands
-- **Feedback Port**: Port for module-level feedback
+- **OSC Listener**: Enable/disable incoming commands (port 8012)
+- **OSC Host**: Companion IP address (default 127.0.0.1)
+- **OSC Port**: Output port for DeckPilot module (default 8014)
 
 ## Example Workflows
 
@@ -183,7 +187,8 @@ Each recorder can be configured independently:
 **Setup**:
 - 3 HyperDecks: HYPER-41, HYPER-42, HYPER-43
 - All in Take mode (Template 2)
-- OSC ports: 8013, 8014, 8015
+- DeckPilot OSC output: port 8014 (all recorders)
+- DeckPilot Companion module listening on port 8014
 
 **Workflow**:
 1. Press "Set All" button on Stream Deck
@@ -215,10 +220,11 @@ Each recorder can be configured independently:
 - Look at Deck Pilot logs for "Received OSC:" messages
 
 ### Feedback not showing in Companion
-- Verify Companion OSC RX Port matches Deck Pilot Feedback Port
-- Check triggers are created for correct OSC paths
-- Ensure recorder names are sanitized (hyphens → underscores)
-- Test with Companion's OSC viewer to see incoming messages
+- Verify DeckPilot Companion module is installed and enabled
+- Check module OSC Listener Port is set to 8014
+- Ensure module connection shows green (connected) status
+- Verify recorder names are sanitized in variables (hyphens → underscores)
+- Check Companion logs for incoming OSC messages at `/deckpilot/{recorder_name}`
 
 ### Wrong recorder responding
 - Check recorder name sanitization: all hyphens and special characters become underscores

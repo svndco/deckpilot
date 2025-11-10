@@ -11,39 +11,48 @@ DeckPilot now supports **bidirectional OSC communication**, enabling Stream Deck
 
 ## DeckPilot Configuration
 
-### 1. Configure OSC Listener
+### 1. Configure OSC Listener (Incoming Commands)
 In DeckPilot Settings:
 - **Enable OSC Listener**: ✓ Checked (default)
-- **Listener Port**: `8012` (default)
+- **Listener Port**: `8012` (default) - receives commands from Companion
 
-### 2. Configure Per-Recorder OSC Output
-For each recorder, ensure OSC settings are configured:
+### 2. Configure OSC Output (Outgoing Feedback)
+In DeckPilot Settings:
 - **OSC Host**: `127.0.0.1` (Companion IP)
-- **OSC Port**: Unique port per recorder (e.g., `8013`, `8015`, `8016`)
+- **OSC Port**: `8014` (default) - sends take metadata to DeckPilot Companion module
+
+**Note**: All recorders share the same output port. Individual recorders are identified by their name in the OSC address path.
 
 ## Companion Module Setup
 
-### 1. Create DeckPilot Module Instance(s)
-Create one Companion module instance per recorder:
+### 1. Install DeckPilot Companion Module
 
-**Instance 1** (for HYPER-41):
-- Module: Generic OSC
-- Connection name: "DeckPilot-HD41"
-- OSC Listener Port: `8013`
-- OSC Address Pattern: `/deckpilot/response/HYPER_41` (or `/deckpilot/*` to accept all)
+1. Build the module (see main README):
+   ```bash
+   cd companion-module-aelive-deckpilot
+   npm install --legacy-peer-deps
+   npm run build
+   npx companion-module-build
+   ./build_sl_mod  # Auto-installs to Companion
+   ```
 
-**Instance 2** (for HYPER-42):
-- Module: Generic OSC
-- Connection name: "DeckPilot-HD42"
-- OSC Listener Port: `8015`
-- OSC Address Pattern: `/deckpilot/response/HYPER_42`
+2. Restart Companion completely
 
-### 2. Create Variables
-Each DeckPilot module instance should expose these variables:
-- `takeName` - Full take name (e.g., "SHOW_S01_T03")
-- `shotNumber` - Shot number (integer)
-- `takeNumber` - Take number (integer)
-- `recorderName` - Recorder name
+3. Add a **DeckPilot** connection in Companion:
+   - Module: **DeckPilot** (by aelive)
+   - Connection name: "DeckPilot"
+   - OSC Listener Port: `8014` (must match DeckPilot's OSC output port)
+
+### 2. Available Variables
+
+The DeckPilot module automatically creates variables for each recorder:
+
+**Per-Recorder Variables** (e.g., for recorder named "HYPER-41"):
+- `$(deckpilot:HYPER_41_take)` - Full take name (e.g., "SHOW_S01_T03")
+- `$(deckpilot:HYPER_41_shot_num)` - Shot number (integer)
+- `$(deckpilot:HYPER_41_take_num)` - Take number (integer)
+
+**Note**: Recorder names are sanitized - hyphens and special characters become underscores.
 
 ## OSC Command Reference
 
@@ -64,9 +73,9 @@ Example: `/deckpilot/recorder123/setTake`
 ```
 
 ### Responses FROM DeckPilot
-**Address:** Sent to each recorder's configured OSC port (e.g., `8013`, `8015`)
+**Address:** Sent to `127.0.0.1:8014` (DeckPilot module's listener port)
 
-**Format:** `/deckpilot/response/{RECORDER_NAME}`
+**Format:** `/deckpilot/{RECORDER_NAME}`
 
 **Arguments:**
 - Arg 0 (string): Take name (e.g., "SHOW_S01_T03")
@@ -92,8 +101,8 @@ Example: `/deckpilot/recorder123/setTake`
 
 **Step 3: Start Recording**
 - Action: HyperDeck - Record
-- Filename: `$(DeckPilot-HD41:takeName)`
-- (Use the variable from your DeckPilot module instance)
+- Filename: `$(deckpilot:HYPER_41_take)`
+- (Use the variable from the DeckPilot module)
 
 ### Example 2: Record All HyperDecks
 
@@ -111,24 +120,24 @@ Example: `/deckpilot/recorder123/setTake`
 **Step 3: Start Recording HD41**
 - Action: HyperDeck - Record
 - Instance: HyperDeck-41
-- Filename: `$(DeckPilot-HD41:takeName)`
+- Filename: `$(deckpilot:HYPER_41_take)`
 
 **Step 4: Start Recording HD42**
 - Action: HyperDeck - Record
 - Instance: HyperDeck-42
-- Filename: `$(DeckPilot-HD42:takeName)`
+- Filename: `$(deckpilot:HYPER_42_take)`
 
 **Step 5: Start Recording HD43**
 - Action: HyperDeck - Record
 - Instance: HyperDeck-43
-- Filename: `$(DeckPilot-HD43:takeName)`
+- Filename: `$(deckpilot:HYPER_43_take)`
 
 ### Example 3: Set Take Display Button
 
 **Button Type:** Display button (shows take name)
 
 **Feedback:**
-- Text: `$(DeckPilot-HD41:takeName)`
+- Text: `$(deckpilot:HYPER_41_take)`
 - Updates automatically when DeckPilot sends new take
 
 **Press Action:**
@@ -165,9 +174,10 @@ To ensure you don't miss any content:
 - Check firewall settings on local machine
 
 ### Variables Not Updating in Companion
-- Verify Companion module OSC port matches recorder's configured output port
+- Verify DeckPilot module OSC port is set to `8014` (matches DeckPilot's output)
 - Check Companion logs for incoming OSC messages
-- Ensure OSC address pattern matches (e.g., `/deckpilot/response/*`)
+- Ensure DeckPilot module instance is connected (green status)
+- Verify recorder names are sanitized correctly (hyphens → underscores)
 
 ### Recording Starts Before Take Name Updates
 - Increase delay between steps (try 200-300ms)
@@ -179,15 +189,17 @@ To ensure you don't miss any content:
 - Check that shot/take numbers are configured
 - Verify OSC command is using correct recorder ID
 
-## Advanced: Custom Companion Module
+## DeckPilot Companion Module Features
 
-For more advanced integration, you can create a custom Companion module that:
-1. Maintains a persistent connection to DeckPilot
-2. Provides custom actions like "Set Take & Record"
-3. Handles timing automatically
-4. Provides status feedback
+The included DeckPilot Companion module (`companion-module-aelive-deckpilot`) provides:
 
-This is recommended if you need:
-- Sub-100ms response times
-- Complex multi-recorder workflows
-- Automatic error handling and retries
+1. **Automatic Variable Creation**: Variables are created automatically for each recorder as OSC messages arrive
+2. **Real-time Updates**: Variables update immediately when takes are set in DeckPilot
+3. **Multi-Recorder Support**: Handles unlimited recorders on a single OSC port (8014)
+4. **Name Sanitization**: Automatically handles recorder name sanitization for variable names
+5. **Integration with BMD Module**: Works alongside the Blackmagic HyperDeck module for transport control
+
+### Best Practices
+- Use the **DeckPilot module** for take names, shot/take numbers, and metadata
+- Use the **Blackmagic HyperDeck module** for transport state and control (play/stop/record)
+- Combine both modules for complete HyperDeck + take name workflows
