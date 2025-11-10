@@ -63,28 +63,32 @@ Restart Companion after installation.
 
 #### 2. Add DeckPilot Connection
 
-1. In Companion, add new connection: **DeckPilot** (by aelive)
+1. In Companion, add new connection: **DeckPilot** (by svndco)
 2. Configure:
    - **Connection Name**: "DeckPilot"
    - **OSC Listener Port**: `8014`
 3. Connection should show green status
 
-**That's it!** One module instance handles all recorders. Variables are created automatically for each recorder as OSC messages arrive.
+**That's it!** One module instance handles all recorders. Variables are created automatically for each recorder within 10 seconds (DeckPilot broadcasts recorder data automatically).
 
 ## How It Works
 
-1. When you set a take in DeckPilot (via UI or OSC command)
-2. DeckPilot sends OSC message to `127.0.0.1:8014`
-3. Message format: `/deckpilot/{RECORDER_NAME}` with 4 arguments:
+1. DeckPilot automatically broadcasts recorder data to `127.0.0.1:8014` every 10 seconds
+2. Message format: `/deckpilot/{RECORDER_NAME}` with 4 arguments:
    - Take name (string)
    - Shot number (int)
    - Take number (int)
    - Recorder name (string)
-4. DeckPilot Companion module receives it and creates/updates variables:
+3. DeckPilot Companion module receives it and creates/updates variables:
    - `{RECORDER_NAME}_take`
    - `{RECORDER_NAME}_shot_num`
    - `{RECORDER_NAME}_take_num`
-5. Variables are immediately available in Companion buttons and triggers
+4. Variables are immediately available in Companion buttons and triggers
+5. Additional broadcasts occur when:
+   - DeckPilot starts (2 second delay)
+   - A recorder is added
+   - A take is set (via UI or OSC command)
+   - Shot or take numbers change
 
 ## Variables
 
@@ -100,7 +104,7 @@ The DeckPilot Companion module creates variables automatically:
 - `$(deckpilot:Camera_1_shot_num)`
 - `$(deckpilot:Camera_1_take_num)`
 
-Variables appear as soon as the first OSC message is received for that recorder.
+Variables appear automatically within 10 seconds of adding a recorder (or immediately after the next DeckPilot action that triggers a broadcast).
 
 ## OSC Listener (Incoming Commands)
 
@@ -170,7 +174,7 @@ Triggers takes for all enabled recorders simultaneously.
 - Verify DeckPilot Companion module is installed and enabled
 - Check module OSC Listener Port is set to `8014`
 - Ensure module connection shows green status
-- Trigger a take in DeckPilot to send initial OSC message
+- Wait 10 seconds for auto-broadcast (or add a recorder to trigger immediate broadcast)
 - Check Companion logs for messages at `/deckpilot/{recorder_name}`
 
 **Wrong variable names**

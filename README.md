@@ -154,7 +154,7 @@ To remove all build artifacts:
 5. Take name is automatically sent to the recorder and via OSC
 
 ### OSC Configuration
-1. Click the AE logo in the top-right corner
+1. Click the Settings button in the top-right corner
 2. Configure settings:
    - **Enable OSC**: Toggle OSC functionality
    - **OSC Host**: Companion IP address (default: 127.0.0.1)
@@ -170,7 +170,7 @@ To remove all build artifacts:
 
 1. **Install the DeckPilot Companion Module** (see installation instructions above)
 2. **Add DeckPilot connection** in Companion:
-   - Module: **DeckPilot** (by aelive)
+   - Module: **DeckPilot** (by svndco)
    - OSC Listener Port: `8014`
 3. **Use variables** in your Stream Deck buttons:
    - `$(deckpilot:HYPER_41_take)` - Full take name
@@ -213,7 +213,6 @@ deckpilot/
 ├── shared/            # Shared TypeScript types
 │   └── types.ts       # Type definitions
 └── public/            # Static assets
-    └── ae-logo.png    # Application logo
 ```
 
 ## Development
@@ -245,7 +244,7 @@ For detailed information, see:
 ## Troubleshooting
 
 ### OSC Messages Not Sending
-1. Check OSC is enabled in Settings (click AE logo)
+1. Check OSC is enabled in Settings
 2. Verify DeckPilot Companion module is installed and connection shows green
 3. Check OSC port is set to 8014 in both DeckPilot settings and Companion module config
 4. Check firewall settings aren't blocking UDP ports 8012 and 8014

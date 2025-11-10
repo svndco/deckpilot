@@ -43,7 +43,7 @@ In DeckPilot Settings:
 2. Restart Companion completely
 
 3. Add a **DeckPilot** connection in Companion:
-   - Module: **DeckPilot** (by aelive)
+   - Module: **DeckPilot** (by svndco)
    - Connection name: "DeckPilot"
    - OSC Listener Port: `8014` (must match DeckPilot's OSC output port)
 

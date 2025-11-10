@@ -88,10 +88,13 @@ Args: ["ShowName_20251110_S01_T03", 1, 3, "HYPER-41"]
 Destination: 127.0.0.1:8014
 ```
 
-**Note**: This message is sent automatically whenever:
-- A take is set via the UI
-- A take is set via OSC command (`/deckpilot/{recorder}/setTake` or `/deckpilot/all/setAll`)
-- Shot or take numbers are changed
+**Note**: This message is sent automatically:
+- Every 10 seconds (auto-broadcast to sync Companion module)
+- When DeckPilot starts (2 second delay)
+- When a recorder is added
+- When a take is set via the UI
+- When a take is set via OSC command (`/deckpilot/{recorder}/setTake` or `/deckpilot/all/setAll`)
+- When shot or take numbers are changed
 
 ## Companion Module Setup
 
@@ -114,7 +117,7 @@ Restart Companion after installation.
 
 ### 2. Add DeckPilot Connection in Companion
 
-1. Add new connection: **DeckPilot** (by aelive)
+1. Add new connection: **DeckPilot** (by svndco)
 2. Configure:
    - **Connection Name**: "DeckPilot"
    - **OSC Listener Port**: `8014` (must match DeckPilot's output port)
