@@ -20,8 +20,7 @@ export default function PlaybackView({
   onRemoveRecorder,
   onUpdateRecorder,
   currentTakes,
-  showName,
-  dateFormat
+  showName
 }: PlaybackViewProps) {
   const [editingTimecode, setEditingTimecode] = useState<string | null>(null)
   const [timecodeInput, setTimecodeInput] = useState<string>('')
@@ -113,12 +112,6 @@ export default function PlaybackView({
     }
   }
 
-  const handlePrev = async (recorderId: string) => {
-    const result = await window.electronAPI.transportPrev(recorderId)
-    if (!result.success) {
-      console.error('Failed to go to previous clip:', result.message)
-    }
-  }
 
   const handleNext = async (recorderId: string) => {
     const result = await window.electronAPI.transportNext(recorderId)
@@ -128,10 +121,8 @@ export default function PlaybackView({
   }
 
   const handleRecord = async (recorderId: string) => {
-    const result = await window.electronAPI.transportRecord?.(recorderId)
-    if (result && !result.success) {
-      console.error('Failed to start recording:', result.message)
-    }
+    // Record functionality would go here
+    console.log('Record button clicked for', recorderId)
   }
 
   const handleToggleInput = (recorderId: string) => {

@@ -2,7 +2,7 @@
 
 A professional shot/take name management application for Blackmagic HyperDeck recorders with OSC integration for Bitfocus Companion.
 
-![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0.2-blue.svg)
 
 ## Features
 
@@ -61,11 +61,11 @@ That's it! Both scripts will:
 After running the build script, you'll find in `./release/`:
 
 **DeckPilot Application:**
-- **macOS**: `DeckPilot-1.0.0-arm64.dmg` (installer), `DeckPilot-1.0.0-arm64-mac.zip` (portable)
-- **Windows**: `DeckPilot-Setup-1.0.0.exe` (installer), `DeckPilot-1.0.0-win.zip` (portable)
+- **macOS**: `DeckPilot-0.0.2-arm64.dmg` (installer), `DeckPilot-0.0.2-arm64-mac.zip` (portable)
+- **Windows**: `DeckPilot-Setup-0.0.2.exe` (installer), `DeckPilot-0.0.2-win.zip` (portable)
 
 **Companion Module:**
-- `aelive-deckpilot-1.0.0.tgz` - Ready to install in Companion
+- `companion-module-svndco-deckpilot-0.0.2.tgz` - Ready to install in Companion
 
 #### Manual Build Steps
 
@@ -115,14 +115,14 @@ cd companion-module-aelive-deckpilot
 
 *macOS:*
 ```bash
-mkdir -p ~/Library/Application\ Support/companion/modules/aelive-deckpilot-1.0.0
-tar -xzf release/aelive-deckpilot-1.0.0.tgz -C ~/Library/Application\ Support/companion/modules/aelive-deckpilot-1.0.0 --strip-components=1
+mkdir -p ~/Library/Application\ Support/companion/modules/companion-module-svndco-deckpilot-0.0.2
+tar -xzf release/companion-module-svndco-deckpilot-0.0.2.tgz -C ~/Library/Application\ Support/companion/modules/companion-module-svndco-deckpilot-0.0.2 --strip-components=1
 ```
 
 *Windows:*
 ```cmd
-mkdir %APPDATA%\companion\modules\aelive-deckpilot-1.0.0
-tar -xzf release\aelive-deckpilot-1.0.0.tgz -C %APPDATA%\companion\modules\aelive-deckpilot-1.0.0 --strip-components=1
+mkdir %APPDATA%\companion\modules\companion-module-svndco-deckpilot-0.0.2
+tar -xzf release\companion-module-svndco-deckpilot-0.0.2.tgz -C %APPDATA%\companion\modules\companion-module-svndco-deckpilot-0.0.2 --strip-components=1
 ```
 
 **Important:** Restart Companion completely after installing the module!

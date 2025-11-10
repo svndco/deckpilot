@@ -3,7 +3,6 @@ import './App.css'
 import RecorderList from './components/RecorderList'
 import TakeInput from './components/TakeInput'
 import Settings from './components/Settings'
-import MonitorView from './components/MonitorView'
 import PlaybackView from './components/PlaybackView'
 import CueView from './components/CueView'
 import { Recorder, AppState, DateFormat } from '@shared/types'
@@ -228,7 +227,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1 style={{ marginLeft: '10px' }}>Deck Pilot <span style={{ fontSize: '0.5em', opacity: 0.7 }}>v.002</span></h1>
+        <h1 style={{ marginLeft: '10px' }}>Deck Pilot <span style={{ fontSize: '0.5em', opacity: 0.7 }}>v0.0.2</span></h1>
         <div className="header-buttons">
           <div className="view-tabs">
             <span
@@ -269,7 +268,7 @@ function App() {
           onRemoveRecorder={handleRemoveRecorder}
           onUpdateRecorder={handleUpdateRecorder}
           currentTakes={state.currentTakes}
-          showName={state.showName}
+          showName={state.showName || ''}
           dateFormat={state.dateFormat}
         />
       ) : (

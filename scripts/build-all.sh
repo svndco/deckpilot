@@ -87,14 +87,14 @@ npx companion-module-build
 print_success "Module packaged"
 
 # Check for the built tarball
-if [ -f "aelive-deckpilot-1.0.0.tgz" ]; then
-    print_success "Companion module tarball created: aelive-deckpilot-1.0.0.tgz"
+if [ -f "companion-module-svndco-deckpilot-0.0.2.tgz" ]; then
+    print_success "Companion module tarball created: companion-module-svndco-deckpilot-0.0.2.tgz"
     
     # Copy to release folder
     echo "Copying companion module to release folder..."
     mkdir -p ../release
-    cp aelive-deckpilot-1.0.0.tgz ../release/
-    print_success "Companion module copied to ./release/aelive-deckpilot-1.0.0.tgz"
+    cp companion-module-svndco-deckpilot-0.0.2.tgz ../release/
+    print_success "Companion module copied to ./release/companion-module-svndco-deckpilot-0.0.2.tgz"
 else
     print_error "Warning: Module tarball not found"
 fi
@@ -113,8 +113,8 @@ fi
 
 echo ""
 echo "✓ Companion module built"
-echo "  - Location: ./release/aelive-deckpilot-1.0.0.tgz"
-echo "  - Original: ./companion-module-aelive-deckpilot/aelive-deckpilot-1.0.0.tgz"
+echo "  - Location: ./release/companion-module-svndco-deckpilot-0.0.2.tgz"
+echo "  - Original: ./companion-module-aelive-deckpilot/companion-module-svndco-deckpilot-0.0.2.tgz"
 
 echo ""
 print_section "Next Steps"
@@ -134,11 +134,11 @@ echo "   ./build_sl_mod"
 echo ""
 echo "   Or manually:"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "   mkdir -p ~/Library/Application\\ Support/companion/modules/aelive-deckpilot-1.0.0"
-    echo "   tar -xzf aelive-deckpilot-1.0.0.tgz -C ~/Library/Application\\ Support/companion/modules/aelive-deckpilot-1.0.0 --strip-components=1"
+    echo "   mkdir -p ~/Library/Application\\ Support/companion/modules/companion-module-svndco-deckpilot-0.0.2"
+    echo "   tar -xzf companion-module-svndco-deckpilot-0.0.2.tgz -C ~/Library/Application\\ Support/companion/modules/companion-module-svndco-deckpilot-0.0.2 --strip-components=1"
 else
-    echo "   mkdir -p ~/.companion/modules/aelive-deckpilot-1.0.0"
-    echo "   tar -xzf aelive-deckpilot-1.0.0.tgz -C ~/.companion/modules/aelive-deckpilot-1.0.0 --strip-components=1"
+    echo "   mkdir -p ~/.companion/modules/companion-module-svndco-deckpilot-0.0.2"
+    echo "   tar -xzf companion-module-svndco-deckpilot-0.0.2.tgz -C ~/.companion/modules/companion-module-svndco-deckpilot-0.0.2 --strip-components=1"
 fi
 
 echo ""

@@ -1,6 +1,6 @@
 {
-  "name": "aelive-deckpilot",
-  "version": "1.0.0",
+  "name": "companion-module-svndco-deckpilot",
+  "version": "0.0.2",
   "description": "Companion module for DeckPilot - HyperDeck recorder take name management",
   "main": "dist/main.js",
   "type": "commonjs",
