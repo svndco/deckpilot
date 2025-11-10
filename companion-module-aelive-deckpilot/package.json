@@ -1,0 +1,36 @@
+{
+  "name": "aelive-deckpilot",
+  "version": "1.0.0",
+  "description": "Companion module for DeckPilot - HyperDeck recorder take name management",
+  "main": "dist/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "dev": "tsc --watch",
+    "dist": "companion-module-build",
+    "companion-mod-build": "companion-module-build"
+  },
+  "keywords": [
+    "companion-module",
+    "hyperdeck",
+    "deckpilot",
+    "recorder"
+  ],
+  "author": "",
+  "license": "MIT",
+  "manufacturer": "SVND.co",
+  "products": ["DeckPilot"],
+  "dependencies": {
+    "@companion-module/base": "~1.11.3",
+    "ws": "^8.16.0",
+    "osc": "^2.4.5"
+  },
+  "devDependencies": {
+    "@companion-module/tools": "^2.2.2",
+    "rimraf": "^6.0.1",
+    "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.10",
+    "typescript": "~5.8.2"
+  },
+  "prettier": "@companion-module/tools/.prettierrc.json"
+}

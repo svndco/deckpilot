@@ -1,0 +1,240 @@
+.recorder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recorder-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recorder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #2d2d2d;
+  border: 2px solid #3d3d3d;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.recorder-item:hover {
+  border-color: #4d4d4d;
+  background: #333333;
+}
+
+.recorder-item.selected {
+  border-color: #007acc;
+  background: #1a3a52;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  margin-right: 12px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.status-dot.online {
+  background: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+}
+
+.status-dot.offline {
+  background: #ff4444;
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+}
+
+.recorder-info {
+  flex: 1;
+}
+
+.recorder-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.recorder-ip {
+  font-size: 12px;
+  color: #b0b0b0;
+}
+
+.recorder-edit {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #3d3d3d;
+  color: #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.recorder-edit:hover {
+  background: #4d4d4d;
+}
+
+.recorder-item.editing {
+  background: #333333;
+  border-color: #007acc;
+}
+
+.recorder-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.recorder-edit-form input {
+  padding: 8px 10px;
+  background: #1e1e1e;
+  border: 1px solid #3d3d3d;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 13px;
+}
+
+.recorder-edit-form input:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.save-btn,
+.cancel-btn,
+.delete-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-btn {
+  background: #00aa00;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #008800;
+}
+
+.cancel-btn {
+  background: #666666;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #555555;
+}
+
+.delete-btn {
+  background: #cc3333;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #aa2222;
+}
+
+.add-recorder-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: #2d2d2d;
+  border-radius: 6px;
+}
+
+.add-recorder-form input,
+.add-recorder-form select {
+  padding: 10px 12px;
+  background: #1e1e1e;
+  border: 1px solid #3d3d3d;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+.add-recorder-form input:focus,
+.add-recorder-form select:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.form-actions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-actions button:first-child {
+  background: #007acc;
+  color: white;
+}
+
+.form-actions button:first-child:hover {
+  background: #005a9e;
+}
+
+.form-actions button:last-child {
+  background: #3d3d3d;
+  color: #e0e0e0;
+}
+
+.form-actions button:last-child:hover {
+  background: #4d4d4d;
+}
+
+.add-recorder-btn {
+  padding: 12px;
+  background: #007acc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-recorder-btn:hover {
+  background: #005a9e;
+}

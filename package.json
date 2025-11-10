@@ -1,0 +1,58 @@
+{
+  "name": "deckpilot",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "DeckPilot - Professional HyperDeck recorder control with Companion integration",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && node electron/build.js && electron-builder",
+    "build:electron": "node electron/build.js",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && npm run build:electron && electron dist-electron/main.cjs\"",
+    "electron:build": "vite build && node electron/build.js && electron-builder"
+  },
+  "keywords": [
+    "electron",
+    "hyperdeck",
+    "companion",
+    "deckpilot"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@types/ws": "^8.5.10",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "esbuild": "^0.19.11",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "osc": "^2.4.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ws": "^8.16.0",
+    "zustand": "^4.4.7"
+  },
+  "build": {
+    "appId": "com.ae.deckpilot",
+    "productName": "DeckPilot",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities"
+    }
+  }
+}

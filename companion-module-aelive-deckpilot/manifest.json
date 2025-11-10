@@ -1,0 +1,17 @@
+{
+  "id": "aelive-deckpilot",
+  "name": "SVND.co: DeckPilot",
+  "shortname": "deckpilot",
+  "description": "Control and manage HyperDeck recorder take names",
+  "version": "1.0.0",
+  "license": "MIT",
+  "manufacturer": "SVND.co",
+  "products": ["DeckPilot"],
+  "keywords": ["hyperdeck", "recorder", "take", "deckpilot"],
+  "runtime": {
+    "type": "node18",
+    "api": "nodejs-ipc",
+    "apiVersion": "1.11.3",
+    "entrypoint": "../main.js"
+  }
+}

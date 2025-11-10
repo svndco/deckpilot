@@ -1,0 +1,214 @@
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settings-modal {
+  background: #2d2d2d;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #ffffff;
+}
+
+.settings-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.settings-content h3 {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.setting-row {
+  margin-bottom: 16px;
+}
+
+.setting-row label {
+  display: block;
+  font-size: 13px;
+  color: #b0b0b0;
+  margin-bottom: 8px;
+}
+
+.setting-row input[type="text"],
+.setting-row input[type="number"] {
+  width: 100%;
+  background: #1e1e1e;
+  border: 1px solid #3d3d3d;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #e0e0e0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.setting-row input[type="text"]:focus,
+.setting-row input[type="number"]:focus {
+  border-color: #0078d4;
+}
+
+.setting-row input[type="text"]:disabled,
+.setting-row input[type="number"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.setting-row input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+.input-with-inline-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inline-label {
+  position: absolute;
+  left: 16px;
+  font-size: 13px;
+  color: #b0d8ff;
+  pointer-events: none;
+  z-index: 1;
+  font-weight: 500;
+}
+
+.osc-client-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #2d2d2d;
+  border: 2px solid #3d3d3d;
+  border-radius: 6px;
+  padding: 12px 16px;
+  padding-left: 170px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.osc-client-inputs:focus-within {
+  border-color: #007acc;
+}
+
+.osc-client-inputs input[type="text"],
+.osc-client-inputs input[type="number"] {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.osc-client-inputs input[type="text"]:focus,
+.osc-client-inputs input[type="number"]:focus {
+  outline: none;
+  border: none;
+}
+
+.inline-input {
+  flex: 1 !important;
+}
+
+.inline-input-port {
+  width: 60px !important;
+  text-align: right;
+}
+
+.osc-separator {
+  color: #666;
+  user-select: none;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.settings-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #3d3d3d;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid #3d3d3d;
+  color: #e0e0e0;
+}
+
+.cancel-btn:hover {
+  background: #3d3d3d;
+}
+
+.save-btn {
+  background: #0078d4;
+  border: none;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #006bb3;
+}
