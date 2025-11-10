@@ -1,8 +1,12 @@
 # DeckPilot - OSC Command Reference
 
+> **Quick Links:** [Setup Guide](OSC_CONFIGURATION.md) | [Stream Deck Examples](STREAMDECK_SETUP.md) | [Main README](README.md)
+
 ## Overview
 
 DeckPilot uses OSC (Open Sound Control) for bidirectional communication with Bitfocus Companion. This allows you to trigger take name updates from Stream Deck buttons and receive feedback about current take names.
+
+**New to DeckPilot OSC?** Start with the [OSC Configuration Guide](OSC_CONFIGURATION.md) for setup instructions.
 
 ## Port Configuration
 
@@ -91,6 +95,8 @@ Destination: 127.0.0.1:8014
 
 ## Companion Module Setup
 
+> **Detailed Setup:** See [OSC_CONFIGURATION.md](OSC_CONFIGURATION.md) for complete installation and configuration guide.
+
 ### 1. Install DeckPilot Companion Module
 
 The DeckPilot Companion module handles OSC communication automatically.
@@ -137,6 +143,8 @@ The module automatically creates variables for each recorder:
   1. Generic OSC → Send `/deckpilot/HYPER_41/setTake` to 127.0.0.1:8012
   2. Delay → 150ms
   3. HyperDeck → Record with filename `$(deckpilot:HYPER_41_take)`
+
+> **More Button Examples:** See [STREAMDECK_SETUP.md](STREAMDECK_SETUP.md) for complete workflows and best practices.
 
 ## Templates and Take Name Formatting
 

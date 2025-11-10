@@ -18,10 +18,11 @@ A professional shot/take name management application for Blackmagic HyperDeck re
 - **Real-time Status** - Live connection status monitoring for all recorders
 
 ### OSC Integration
-- **Bitfocus Companion Support** - Send take names via OSC to Companion
-- **Per-Recorder Addressing** - Unique OSC path for each recorder: `/ae/deckpilot/{recorder-name}`
-- **Configurable Settings** - Adjustable IP, send port, and receive port
-- **Enable/Disable** - Toggle OSC functionality as needed
+- **Bitfocus Companion Support** - Bidirectional OSC communication with custom DeckPilot module
+- **Unified Port Architecture** - All recorders share ports 8012 (incoming) and 8014 (outgoing)
+- **Per-Recorder Variables** - Automatic variable creation for each recorder's take data
+- **Stream Deck Ready** - Full integration with Stream Deck buttons and triggers
+- **Configurable Settings** - Adjustable OSC host, ports, and listener options
 
 ### User Interface
 - **Clean Dark Theme** - Professional, easy-to-read interface
@@ -182,9 +183,9 @@ To remove all build artifacts:
 - All recorders share the same ports; individual recorders are identified by name in OSC paths
 
 **For detailed setup instructions, see:**
-- [OSC Commands Reference](OSC_COMMANDS.md) - Complete OSC protocol documentation
-- [Stream Deck Setup Guide](STREAMDECK_SETUP.md) - Step-by-step button configuration
-- [OSC Configuration Guide](OSC_CONFIGURATION.md) - Network setup and troubleshooting
+- **[OSC_CONFIGURATION.md](OSC_CONFIGURATION.md)** - Start here! Network setup and module installation
+- **[OSC_COMMANDS.md](OSC_COMMANDS.md)** - Complete OSC protocol reference and command formats
+- **[STREAMDECK_SETUP.md](STREAMDECK_SETUP.md)** - Stream Deck button examples and workflows
 
 ## Configuration Files
 

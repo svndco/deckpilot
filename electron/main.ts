@@ -47,7 +47,7 @@ let appState: AppState = {
   showName: '',
   dateFormat: 'YYYYMMDD',
   oscSettings: {
-    enabled: true,  // OSC is configured per-recorder now
+    enabled: true,  // Global OSC enable/disable
     listenerPort: 8012,  // Default port for incoming OSC commands
     listenerEnabled: true  // Enable OSC listener by default
   }
@@ -83,9 +83,9 @@ async function loadState() {
       }
     }
     
-    // Migrate existing recorders to ensure they have shot/take numbers and OSC settings
+    // Migrate existing recorders to ensure they have shot/take numbers
     let needsSave = false
-    appState.recorders.forEach((recorder, index) => {
+    appState.recorders.forEach((recorder) => {
       if (recorder.format.type === 'take-based') {
         if (!recorder.shotNumber) {
           recorder.shotNumber = 1
@@ -95,16 +95,6 @@ async function loadState() {
           recorder.takeNumber = 1
           needsSave = true
         }
-      }
-      // Set default OSC settings if not present
-      if (!recorder.oscHost) {
-        recorder.oscHost = '127.0.0.1'
-        needsSave = true
-      }
-      if (!recorder.oscPort) {
-        // Assign sequential ports starting from 8013
-        recorder.oscPort = 8013 + index
-        needsSave = true
       }
     })
     

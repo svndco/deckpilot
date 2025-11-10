@@ -1,6 +1,10 @@
 # Stream Deck Integration with DeckPilot
 
+> **Quick Links:** [OSC Configuration](OSC_CONFIGURATION.md) | [OSC Commands](OSC_COMMANDS.md) | [Main README](README.md)
+
 This guide explains how to set up Stream Deck buttons to trigger DeckPilot actions and use the response data.
+
+**First Time Setup?** Start with [OSC_CONFIGURATION.md](OSC_CONFIGURATION.md) to install the module and configure ports.
 
 ## Overview
 
@@ -55,6 +59,8 @@ The DeckPilot module automatically creates variables for each recorder:
 **Note**: Recorder names are sanitized - hyphens and special characters become underscores.
 
 ## OSC Command Reference
+
+> **Complete Reference:** See [OSC_COMMANDS.md](OSC_COMMANDS.md) for full command documentation and examples.
 
 ### Commands TO DeckPilot
 **Address:** `127.0.0.1:8012` (DeckPilot listener port)

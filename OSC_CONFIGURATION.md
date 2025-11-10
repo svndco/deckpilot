@@ -1,9 +1,11 @@
 # OSC Configuration Guide
 
+> **Quick Links:** [OSC Commands Reference](OSC_COMMANDS.md) | [Stream Deck Setup](STREAMDECK_SETUP.md) | [Main README](README.md)
+
 ## Overview
-DeckPilot now supports **bidirectional OSC communication**:
-- **Outgoing**: Each recorder sends OSC messages to its own dedicated Companion module instance
-- **Incoming**: DeckPilot listens for OSC commands from Companion to trigger actions like "Set Take" or "Set All"
+DeckPilot supports **bidirectional OSC communication** with Bitfocus Companion:
+- **Outgoing**: DeckPilot sends take metadata to the DeckPilot Companion module (all recorders → port 8014)
+- **Incoming**: DeckPilot listens for OSC commands from Companion to trigger actions like "Set Take" or "Set All" (port 8012)
 
 ## Architecture
 
@@ -42,6 +44,8 @@ When adding a recorder:
 - **Format/Template**: Show, Take, or Custom
 
 **No per-recorder OSC configuration needed** - all recorders share the global OSC settings.
+
+> **Next Steps:** See [OSC_COMMANDS.md](OSC_COMMANDS.md) for command reference or [STREAMDECK_SETUP.md](STREAMDECK_SETUP.md) for button examples.
 
 ### Companion Module Setup
 
@@ -152,6 +156,8 @@ Triggers takes for all enabled recorders simultaneously.
    - Variable example: `$(deckpilot:takeName)`
 
 **Note:** Add 2-5 seconds of preroll in HyperDeck settings to compensate for timing delays.
+
+> **More Examples:** See [STREAMDECK_SETUP.md](STREAMDECK_SETUP.md) for complete Stream Deck button configurations.
 
 ## Troubleshooting
 
