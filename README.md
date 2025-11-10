@@ -79,7 +79,7 @@ npm run build
 
 **Companion Module Only:**
 ```bash
-cd companion-module-aelive-deckpilot
+cd companion-module-svndco-deckpilot
 npm install --legacy-peer-deps
 npm run build
 npx companion-module-build
@@ -107,7 +107,7 @@ npm run electron:dev  # Hot reload development
 
 **Option 1: Automatic (Recommended)**
 ```bash
-cd companion-module-aelive-deckpilot
+cd companion-module-svndco-deckpilot
 ./build_sl_mod
 ```
 

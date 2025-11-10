@@ -103,7 +103,7 @@ The DeckPilot Companion module handles OSC communication automatically.
 
 **Installation**:
 ```bash
-cd companion-module-aelive-deckpilot
+cd companion-module-svndco-deckpilot
 npm install --legacy-peer-deps
 npm run build
 npx companion-module-build

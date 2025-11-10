@@ -32,7 +32,7 @@ scripts/build-all.bat          # Build both app and Companion module (Windows)
 
 ### Companion Module
 ```bash
-cd companion-module-aelive-deckpilot
+cd companion-module-svndco-deckpilot
 npm install --legacy-peer-deps
 npm run build
 npx companion-module-build
@@ -67,7 +67,7 @@ deckpilot/
 │   └── App.css                 # Dark theme styles
 ├── shared/                     # Shared TypeScript types
 │   └── types.ts                # AppState, Recorder, IPC_CHANNELS, OscSettings, etc.
-├── companion-module-aelive-deckpilot/  # Companion module (separate TypeScript project)
+├── companion-module-svndco-deckpilot/  # Companion module (separate TypeScript project)
 └── public/                     # Static assets
 ```
 
@@ -191,7 +191,7 @@ DeckPilot works alongside the Blackmagic HyperDeck Companion module. Use BMD mod
 
 ## Companion Module Integration
 
-The `companion-module-aelive-deckpilot/` directory is a separate TypeScript project that creates a Bitfocus Companion module.
+The `companion-module-svndco-deckpilot/` directory is a separate TypeScript project that creates a Bitfocus Companion module.
 
 **Key Responsibilities:**
 - Listen for OSC from DeckPilot on configurable port (default 8014)

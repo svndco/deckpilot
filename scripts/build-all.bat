@@ -54,7 +54,7 @@ echo.
 echo ==== Building Companion Module ====
 echo.
 
-set COMPANION_DIR=companion-module-aelive-deckpilot
+set COMPANION_DIR=companion-module-svndco-deckpilot
 
 if not exist "%COMPANION_DIR%" (
     echo ERROR: Companion module directory not found at .\%COMPANION_DIR%

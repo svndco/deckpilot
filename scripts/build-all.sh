@@ -65,7 +65,7 @@ fi
 # 2. Build Companion Module
 print_section "Building Companion Module"
 
-COMPANION_DIR="companion-module-aelive-deckpilot"
+COMPANION_DIR="companion-module-svndco-deckpilot"
 
 if [ ! -d "$COMPANION_DIR" ]; then
     print_error "Error: Companion module directory not found at ./$COMPANION_DIR"
@@ -114,7 +114,7 @@ fi
 echo ""
 echo "✓ Companion module built"
 echo "  - Location: ./release/companion-module-svndco-deckpilot-0.0.2.tgz"
-echo "  - Original: ./companion-module-aelive-deckpilot/companion-module-svndco-deckpilot-0.0.2.tgz"
+echo "  - Original: ./companion-module-svndco-deckpilot/svndco-deckpilot-0.0.2.tgz"
 
 echo ""
 print_section "Next Steps"
@@ -129,7 +129,7 @@ fi
 echo ""
 echo "2. Install Companion Module:"
 echo "   Run the install script:"
-echo "   cd companion-module-aelive-deckpilot"
+echo "   cd companion-module-svndco-deckpilot"
 echo "   ./build_sl_mod"
 echo ""
 echo "   Or manually:"

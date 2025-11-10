@@ -33,7 +33,7 @@ In DeckPilot Settings:
 
 1. Build the module (see main README):
    ```bash
-   cd companion-module-aelive-deckpilot
+   cd companion-module-svndco-deckpilot
    npm install --legacy-peer-deps
    npm run build
    npx companion-module-build
@@ -197,7 +197,7 @@ To ensure you don't miss any content:
 
 ## DeckPilot Companion Module Features
 
-The included DeckPilot Companion module (`companion-module-aelive-deckpilot`) provides:
+The included DeckPilot Companion module (`companion-module-svndco-deckpilot`) provides:
 
 1. **Automatic Variable Creation**: Variables are created automatically for each recorder as OSC messages arrive
 2. **Real-time Updates**: Variables update immediately when takes are set in DeckPilot
