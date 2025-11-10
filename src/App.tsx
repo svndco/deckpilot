@@ -31,7 +31,7 @@ function App() {
     // Listen for OSC trigger events
     const removeOscListener = window.electronAPI.onOscTriggered((data: { recorderId: string; timestamp: number }) => {
       setOscTriggered(data)
-      setTimeout(() => setOscTriggered(null), 1000)
+      setTimeout(() => setOscTriggered(null), 700)
     })
 
     return () => {
@@ -270,6 +270,7 @@ function App() {
           currentTakes={state.currentTakes}
           showName={state.showName || ''}
           dateFormat={state.dateFormat}
+          oscTriggered={oscTriggered}
         />
       ) : (
         <>

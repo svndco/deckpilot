@@ -55,9 +55,19 @@ export default function Settings({ oscSettings, onSave, onClose }: SettingsProps
     }
   }
 
-  function handleNewShow() {
+  async function handleNewShow() {
     if (confirm('Create a new show? This will clear all current recorders, takes, and history.')) {
-      window.location.reload()
+      setStatusMessage(null)
+      const result = await window.electronAPI.newShow()
+      if (result.success) {
+        setStatusMessage({ type: 'success', message: 'New show created successfully' })
+        // Close settings after a short delay to show the new state
+        setTimeout(() => {
+          onClose()
+        }, 1500)
+      } else {
+        setStatusMessage({ type: 'error', message: result.message || 'New show creation failed' })
+      }
     }
   }
 

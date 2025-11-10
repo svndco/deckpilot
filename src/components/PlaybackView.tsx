@@ -12,6 +12,7 @@ interface PlaybackViewProps {
   currentTakes: Record<string, string>
   showName: string
   dateFormat: any
+  oscTriggered?: { recorderId: string; timestamp: number } | null
 }
 
 export default function PlaybackView({
@@ -20,7 +21,8 @@ export default function PlaybackView({
   onRemoveRecorder,
   onUpdateRecorder,
   currentTakes,
-  showName
+  showName,
+  oscTriggered
 }: PlaybackViewProps) {
   const [editingTimecode, setEditingTimecode] = useState<string | null>(null)
   const [timecodeInput, setTimecodeInput] = useState<string>('')
@@ -440,6 +442,11 @@ export default function PlaybackView({
               <div className="player-info">
                 <div className="info-row take-row">
                   <span className="info-label">Current:</span>
+                  {(oscTriggered?.recorderId === recorder.id || oscTriggered?.recorderId === 'all') && (
+                    <svg className="osc-trigger-indicator" key={oscTriggered.timestamp} width="12" height="12" viewBox="0 0 12 12">
+                      <circle cx="6" cy="6" r="5" fill="none" stroke="#ff0000" strokeWidth="2" strokeDasharray="31.4" strokeDashoffset="31.4" />
+                    </svg>
+                  )}
                   <span 
                     className="info-value take-current" 
                     data-full-text={currentTakes[recorder.id] || 'No take set'}

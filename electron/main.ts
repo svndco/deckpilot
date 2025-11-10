@@ -12,8 +12,10 @@ const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json')
 
 let mainWindow: BrowserWindow | null = null
 let statusCheckInterval: NodeJS.Timeout | null = null
+let broadcastInterval: NodeJS.Timeout | null = null
 const HYPERDECK_PORT = 9993 // HyperDeck control port
 const STATUS_CHECK_INTERVAL = 5000 // Check every 5 seconds
+const BROADCAST_INTERVAL = 10000 // Broadcast to Companion every 10 seconds
 
 // OSC client and listener
 let oscPort: any = null
@@ -814,6 +816,13 @@ ipcMain.handle(IPC_CHANNELS.ADD_RECORDER, async (_, recorder: Recorder) => {
   
   appState.recorders.push(recorder)
   saveState()
+  
+  // Broadcast the new recorder to Companion immediately
+  setTimeout(() => {
+    const takeName = appState.currentTakes[recorder.id] || generateTakeName(recorder)
+    sendTakeResponse(recorder, takeName)
+  }, 100)
+  
   return appState.recorders
 })
 
@@ -1057,6 +1066,43 @@ ipcMain.handle(IPC_CHANNELS.IMPORT_SHOW, async () => {
   }
 })
 
+ipcMain.handle(IPC_CHANNELS.NEW_SHOW, async () => {
+  try {
+    // Reset state to defaults while keeping templates and OSC settings
+    appState = {
+      recorders: [],  // Clear all recorders
+      currentTakes: {},  // Clear current takes
+      takeHistory: [],  // Clear history
+      templates: appState.templates,  // Keep templates
+      predefinedTakes: [],  // Clear predefined takes
+      showName: '',  // Reset show name to blank
+      dateFormat: appState.dateFormat || 'YYYYMMDD',  // Keep date format
+      oscSettings: appState.oscSettings  // Keep OSC settings
+    }
+
+    // Also reset shot/take numbers in any new recorders to 1
+    // (but since we cleared recorders, they'll be added fresh with defaults)
+
+    await saveState()
+
+    // Notify renderer of updated state
+    if (mainWindow) {
+      mainWindow.webContents.send('state-updated', appState)
+    }
+
+    // Stop status checking since we have no recorders
+    if (statusCheckInterval) {
+      clearInterval(statusCheckInterval)
+      statusCheckInterval = null
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('New show failed:', error)
+    return { success: false, message: `New show failed: ${error}` }
+  }
+})
+
 ipcMain.handle(IPC_CHANNELS.TRANSPORT_PLAY, async (_, recorderId: string) => {
   const recorder = appState.recorders.find(r => r.id === recorderId)
   if (!recorder) return { success: false, message: 'Recorder not found' }
@@ -1129,12 +1175,33 @@ ipcMain.handle(IPC_CHANNELS.GOTO_TIMECODE, async (_, recorderId: string, timecod
   return { success, message: success ? `Goto timecode ${timecode} command sent` : 'Failed to goto timecode' }
 })
 
+function broadcastAllRecordersToCompanion() {
+  // Send current state of all recorders to Companion
+  if (!oscPort || !appState.oscSettings?.enabled) return
+  
+  console.log('Broadcasting all recorders to Companion...')
+  appState.recorders.forEach(recorder => {
+    const takeName = appState.currentTakes[recorder.id] || generateTakeName(recorder)
+    sendTakeResponse(recorder, takeName)
+  })
+}
+
 app.whenReady().then(async () => {
   await loadState()
   createWindow()
   initOSC()
   initOSCListener()
   startStatusChecking()
+  
+  // Broadcast all recorders to Companion after a short delay (to ensure OSC is ready)
+  setTimeout(() => {
+    broadcastAllRecordersToCompanion()
+  }, 2000)
+  
+  // Set up periodic broadcast to Companion (in case Companion restarts)
+  broadcastInterval = setInterval(() => {
+    broadcastAllRecordersToCompanion()
+  }, BROADCAST_INTERVAL)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -1152,6 +1219,9 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   if (statusCheckInterval) {
     clearInterval(statusCheckInterval)
+  }
+  if (broadcastInterval) {
+    clearInterval(broadcastInterval)
   }
   if (oscPort) {
     oscPort.close()

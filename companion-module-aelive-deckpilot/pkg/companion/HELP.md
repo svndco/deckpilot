@@ -1,37 +1,53 @@
-# AE Shot Loader
+# SVND.co DeckPilot
 
-Control HyperDeck recorder take names from Companion.
+Receive take names, shot numbers, and metadata from DeckPilot for Blackmagic HyperDeck recorders.
 
 ## Configuration
 
-**WebSocket Port** (default: 8765)
-The port to connect to the AE Shot Loader Electron app.
+**OSC Receive Port** (default: 8014)
+The port to listen for OSC messages from DeckPilot.
 
-**Auto Reconnect** (default: enabled)
-Automatically reconnect if connection is lost.
+**OSC Address Prefix** (default: /deckpilot/)
+The OSC address prefix to filter messages. Only messages starting with this prefix will be processed.
 
 ## Actions
 
-- **Set Take Name** - Set the take name for a specific recorder
-- **Increment Take Number** - Auto-increment the last number in the take name
-- **Apply Template** - Apply a template with variables (e.g., "Scene {scene} - Take {take}")
+This module is **receive-only**. Use DeckPilot to set take names, which will automatically update variables in this module.
+
+To control DeckPilot from Companion, use OSC Send commands to:
+- `/deckpilot/{recorder_name}/setTake` - Trigger take name generation for a specific recorder
+- `/deckpilot/all/setAll` - Trigger take name generation for all recorders
 
 ## Variables
 
-- `$(aelive-shotloader:show_name)` - Current show name
-- `$(aelive-shotloader:recorder_count)` - Number of connected recorders
-- `$(aelive-shotloader:all_takes)` - All current take names
-- `$(aelive-shotloader:recorder_{id}_take)` - Take name for specific recorder
-- `$(aelive-shotloader:recorder_{id}_ip)` - IP address for specific recorder
+Variables are created automatically for each recorder that sends data:
 
-## Feedbacks
+- `$(deckpilot:{recorder}_take)` - Current take name for the recorder
+- `$(deckpilot:{recorder}_shot_num)` - Current shot number
+- `$(deckpilot:{recorder}_take_num)` - Current take number
+- `$(deckpilot:{recorder}_ip)` - Recorder IP address
 
-- **Take Name is Set** - Indicator when take name is configured for a recorder
-- **Take Name Matches** - Check if take name matches expected value
+Example: For a recorder named "HYPER-41", variables will be:
+- `$(deckpilot:hyper_41_take)`
+- `$(deckpilot:hyper_41_shot_num)`
+- `$(deckpilot:hyper_41_take_num)`
+- `$(deckpilot:hyper_41_ip)`
+
+Note: Hyphens and special characters in recorder names are converted to underscores in variable names.
 
 ## Setup
 
-1. Launch the AE Shot Loader Electron app
-2. Add recorders to the app
-3. The module will automatically connect via WebSocket
-4. Use actions to control take names from Companion buttons
+1. Install and launch DeckPilot
+2. Add your HyperDeck recorders in DeckPilot
+3. Configure OSC settings in DeckPilot to send to Companion (default port 8014)
+4. Add this module instance in Companion
+5. Variables will appear automatically when recorders send data (within 10 seconds)
+6. Use the variables in your Companion buttons to display take information
+
+## Integration with Blackmagic HyperDeck Module
+
+This module works alongside the official Blackmagic HyperDeck Companion module:
+- Use the **Blackmagic HyperDeck module** for transport control (play/stop/record) and accurate hardware state
+- Use the **DeckPilot module** for take names, shot numbers, and metadata display
+
+Both modules can control the same HyperDecks simultaneously.

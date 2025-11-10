@@ -155,14 +155,17 @@ class ShotLoaderInstance extends InstanceBase<ShotLoaderConfig> {
     // Regular take name message: /deckpilot/{recorder}
     const recorderName = remainder
 
-    // Get the take name from the first argument
+    // Get the take name and metadata from arguments
     const takeName = oscMsg.args && oscMsg.args[0] ? oscMsg.args[0].value : ''
+    const shotNumber = oscMsg.args && oscMsg.args[1] ? oscMsg.args[1].value : 1
+    const takeNumber = oscMsg.args && oscMsg.args[2] ? oscMsg.args[2].value : 1
+    const ipAddress = oscMsg.args && oscMsg.args[3] ? oscMsg.args[3].value : 'Unknown'
 
     if (!takeName) {
       return
     }
 
-    this.log('debug', `OSC received: ${address} = ${takeName}`)
+    this.log('debug', `OSC received: ${address} = ${takeName} (Shot: ${shotNumber}, Take: ${takeNumber})`)
 
     // Find or create recorder by name
     let recorder = Array.from(this.recorders.values()).find(r => {
@@ -179,15 +182,20 @@ class ShotLoaderInstance extends InstanceBase<ShotLoaderConfig> {
         id: newId,
         name: displayName,
         takeName: takeName,
-        ipAddress: 'Unknown',
-        shotNumber: 1,
-        takeNumber: 1
+        ipAddress: ipAddress,
+        shotNumber: shotNumber,
+        takeNumber: takeNumber
       }
       this.recorders.set(newId, recorder)
       this.log('info', `New recorder discovered via OSC: ${displayName}`)
     } else {
       // Update existing recorder
       recorder.takeName = takeName
+      recorder.shotNumber = shotNumber
+      recorder.takeNumber = takeNumber
+      if (ipAddress !== 'Unknown') {
+        recorder.ipAddress = ipAddress
+      }
     }
 
     // Update variables

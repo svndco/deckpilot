@@ -17,7 +17,7 @@ npm run companion-mod-build
 
 echo ""
 echo "Installing module to Companion..."
-MODULE_NAME="aelive-deckpilot-1.0.0"
+MODULE_NAME="svndco-deckpilot-0.0.2"
 COMPANION_DIR="$HOME/Library/Application Support/companion/modules"
 TARGET_DIR="$COMPANION_DIR/$MODULE_NAME"
 
@@ -42,4 +42,4 @@ echo "Module contents:"
 ls -lh "$TARGET_DIR"
 echo ""
 echo "IMPORTANT: Restart Companion completely to load the module."
-echo "The module will appear as 'AE.Live: DeckPilot' in the connections list."
+echo "The module will appear as 'SVND.co: DeckPilot' in the connections list."

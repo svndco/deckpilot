@@ -19,6 +19,7 @@ declare global {
       setOscSettings: (oscSettings: any) => Promise<any>
       exportShow: () => Promise<{ success: boolean; filePath?: string; message?: string }>
       importShow: () => Promise<{ success: boolean; filePath?: string; message?: string }>
+      newShow: () => Promise<{ success: boolean; message?: string }>
       transportPlay: (recorderId: string) => Promise<{ success: boolean; message: string }>
       transportStop: (recorderId: string) => Promise<{ success: boolean; message: string }>
       transportPrev: (recorderId: string) => Promise<{ success: boolean; message: string }>

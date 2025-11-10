@@ -95,7 +95,8 @@ export const IPC_CHANNELS = {
   GET_CLIPS: 'get-clips',
   GOTO_CLIP: 'goto-clip',
   PLAY_CLIP: 'play-clip',
-  GOTO_TIMECODE: 'goto-timecode'
+  GOTO_TIMECODE: 'goto-timecode',
+  NEW_SHOW: 'new-show'
 } as const
 
 // WebSocket message types for Companion integration
