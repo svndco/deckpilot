@@ -3,7 +3,7 @@
   "name": "SVND.co: DeckPilot",
   "shortname": "deckpilot",
   "description": "Control and manage HyperDeck recorder take names",
-  "version": "0.0.2",
+  "version": "0.0.12",
   "license": "MIT",
   "manufacturer": "SVND.co",
   "products": ["DeckPilot"],

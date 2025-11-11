@@ -2,7 +2,7 @@
 
 A professional shot/take name management application for Blackmagic HyperDeck recorders with OSC integration for Bitfocus Companion.
 
-![Version](https://img.shields.io/badge/version-0.0.2-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0.12-blue.svg)
 
 ## Features
 
@@ -39,22 +39,27 @@ A professional shot/take name management application for Blackmagic HyperDeck re
 
 ### Build from Source
 
-#### Quick Start - Automated Build
+#### Quick Start - Interactive Build Menu
 
 **macOS / Linux:**
 ```bash
-./scripts/build-all.sh
+./build.sh
 ```
 
 **Windows:**
 ```cmd
-scripts\build-all.bat
+build.bat
 ```
 
-That's it! Both scripts will:
-1. Build the DeckPilot Electron application
-2. Build the Companion module
-3. Copy everything to the `./release/` folder
+The interactive menu offers:
+1. Build Electron App
+2. Build Companion Module
+3. Build Both
+4. Install Companion Module
+5. Build Companion + Install
+6. Build All + Install Companion
+
+**Note:** Version numbers auto-increment on each build (0.0.12 → 0.0.13, etc.)
 
 #### What Gets Built
 
@@ -106,34 +111,39 @@ npm run electron:dev  # Hot reload development
 #### Installing the Companion Module
 
 **Option 1: Automatic (Recommended)**
+Use the build menu:
 ```bash
-cd companion-module-svndco-deckpilot
-./build_sl_mod
+./build.sh  # Select option 5: Build Companion + Install
 ```
+
+This automatically installs the module to the correct Companion directory.
 
 **Option 2: Manual**
 
 *macOS:*
 ```bash
-mkdir -p ~/Library/Application\ Support/companion/modules/companion-module-svndco-deckpilot-0.0.2
-tar -xzf release/companion-module-svndco-deckpilot-0.0.2.tgz -C ~/Library/Application\ Support/companion/modules/companion-module-svndco-deckpilot-0.0.2 --strip-components=1
+mkdir -p ~/Library/Application\ Support/companion/modules/svndco-deckpilot
+tar -xzf companion-module-svndco-deckpilot/svndco-deckpilot-*.tgz -C ~/Library/Application\ Support/companion/modules/svndco-deckpilot --strip-components=1
 ```
 
 *Windows:*
 ```cmd
-mkdir %APPDATA%\companion\modules\companion-module-svndco-deckpilot-0.0.2
-tar -xzf release\companion-module-svndco-deckpilot-0.0.2.tgz -C %APPDATA%\companion\modules\companion-module-svndco-deckpilot-0.0.2 --strip-components=1
+mkdir %APPDATA%\companion\modules\svndco-deckpilot
+tar -xzf companion-module-svndco-deckpilot\svndco-deckpilot-*.tgz -C %APPDATA%\companion\modules\svndco-deckpilot --strip-components=1
 ```
 
-**Important:** Restart Companion completely after installing the module!
+**Important:** 
+- Restart Companion completely after installing the module
+- To update: If you already have a DeckPilot connection, open its settings and select the new version from the dropdown
 
-#### Clean Build
+#### Version Management
 
-To remove all build artifacts:
-```bash
-./scripts/clean.sh  # Interactive cleanup
-./scripts/build-all.sh  # Rebuild everything
-```
+Versions auto-increment with each build. The build script updates:
+- Main app `package.json`
+- Companion module `package.json` and `manifest.json`
+- README.md version badge
+
+All builds output to `./release/` directory.
 
 ## Usage
 

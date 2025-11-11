@@ -74,6 +74,10 @@ export function updateVariables(
     // Add per-recorder variables
     newDefinitions.push(
       {
+        name: `${recorder.name} - Name`,
+        variableId: `${sanitizedId}_name`
+      },
+      {
         name: `${recorder.name} - Take Name`,
         variableId: `${sanitizedId}_take`
       },
@@ -91,6 +95,7 @@ export function updateVariables(
       }
     )
     
+    variables[`${sanitizedId}_name`] = recorder.name
     variables[`${sanitizedId}_take`] = recorder.takeName || 'Not Set'
     variables[`${sanitizedId}_transport`] = recorder.transportState || 'stopped'
     variables[`${sanitizedId}_shot_num`] = recorder.shotNumber || 1

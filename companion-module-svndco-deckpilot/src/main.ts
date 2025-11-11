@@ -21,7 +21,10 @@ class ShotLoaderInstance extends InstanceBase<ShotLoaderConfig> {
   private showName: string = ''
   public config: ShotLoaderConfig = {
     oscAddressPrefix: '/deckpilot/',
-    oscReceivePort: 8014
+    oscReceiveHost: '0.0.0.0',
+    oscReceivePort: 8014,
+    deckpilotHost: '127.0.0.1',
+    deckpilotPort: 8012
   }
 
   constructor(internal: unknown) {
@@ -74,7 +77,7 @@ class ShotLoaderInstance extends InstanceBase<ShotLoaderConfig> {
   private initOSC(): void {
     try {
       this.oscPort = new osc.UDPPort({
-        localAddress: '0.0.0.0',
+        localAddress: this.config.oscReceiveHost,
         localPort: this.config.oscReceivePort,
         metadata: true
       })
@@ -146,8 +149,9 @@ class ShotLoaderInstance extends InstanceBase<ShotLoaderConfig> {
         this.log('info', `New recorder discovered via transport OSC: ${displayName}`)
       }
       
-      // Update variables
+      // Update variables and actions
       updateVariables(this, this.recorders, this.showName, this.config)
+      this.setActionDefinitions(getActions(this))
       this.checkFeedbacks()
       return
     }
@@ -198,8 +202,9 @@ class ShotLoaderInstance extends InstanceBase<ShotLoaderConfig> {
       }
     }
 
-    // Update variables
+    // Update variables and actions
     updateVariables(this, this.recorders, this.showName, this.config)
+    this.setActionDefinitions(getActions(this))
     this.checkFeedbacks()
   }
 

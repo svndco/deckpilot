@@ -1,6 +1,6 @@
 {
   "name": "deckpilot",
-  "version": "0.0.2",
+  "version": "0.0.12",
   "type": "module",
   "description": "DeckPilot - Professional HyperDeck recorder control with Companion integration",
   "main": "dist-electron/main.cjs",

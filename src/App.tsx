@@ -5,7 +5,8 @@ import TakeInput from './components/TakeInput'
 import Settings from './components/Settings'
 import PlaybackView from './components/PlaybackView'
 import CueView from './components/CueView'
-import { Recorder, AppState, DateFormat } from '@shared/types'
+import { AppState, Recorder, DateFormat } from '../shared/types'
+import packageJson from '../package.json'
 
 function App() {
   const [state, setState] = useState<AppState | null>(null)
@@ -227,7 +228,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1 style={{ marginLeft: '10px' }}>Deck Pilot <span style={{ fontSize: '0.5em', opacity: 0.7 }}>v0.0.2</span></h1>
+        <h1 style={{ marginLeft: '10px' }}>Deck Pilot <span style={{ fontSize: '0.5em', opacity: 0.7 }}>v{packageJson.version}</span></h1>
         <div className="header-buttons">
           <div className="view-tabs">
             <span
