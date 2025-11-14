@@ -24,6 +24,11 @@ export interface Recorder {
   diskSpaceGB?: number  // Remaining disk space in GB
   recordingTimeMinutes?: number  // Estimated remaining recording time in minutes
   clips?: Clip[]  // Available clips on the recorder
+  // Template component toggles (stored per-recorder to persist with saved shows)
+  includeShow?: boolean  // Include show name in take
+  includeDate?: boolean  // Include date in take
+  includeShotTake?: boolean  // Include shot/take numbers
+  includeCustom?: boolean  // Include custom text
 }
 
 export interface RecorderFormat {
@@ -96,7 +101,9 @@ export const IPC_CHANNELS = {
   GOTO_CLIP: 'goto-clip',
   PLAY_CLIP: 'play-clip',
   GOTO_TIMECODE: 'goto-timecode',
-  NEW_SHOW: 'new-show'
+  NEW_SHOW: 'new-show',
+  SET_VIDEO_INPUT: 'set-video-input',
+  SET_RECORDER_TEMPLATE_SETTINGS: 'set-recorder-template-settings'
 } as const
 
 // WebSocket message types for Companion integration

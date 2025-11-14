@@ -367,6 +367,7 @@ function App() {
               </div>
             </div>
             <TakeInput
+              recorderId={currentRecorder.id}
               currentTake={state.currentTakes[selectedRecorder || ''] || ''}
               history={state.takeHistory.filter(t => !t.recorderId || t.recorderId === selectedRecorder)}
               templates={state.templates}
@@ -385,6 +386,10 @@ function App() {
               customText={currentRecorder.customText || ''}
               onCustomTextStateChange={handleCustomTextStateChange}
               oscTriggered={oscTriggered !== null && (oscTriggered.recorderId === 'all' || oscTriggered.recorderId === currentRecorder.id)}
+              includeShow={currentRecorder.includeShow}
+              includeDate={currentRecorder.includeDate}
+              includeShotTake={currentRecorder.includeShotTake}
+              includeCustom={currentRecorder.includeCustom}
             />
           </section>
         )}

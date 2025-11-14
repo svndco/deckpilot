@@ -1,6 +1,6 @@
 {
   "name": "companion-module-svndco-deckpilot",
-  "version": "0.0.12",
+  "version": "0.0.24",
   "description": "Companion module for DeckPilot - HyperDeck recorder take name management",
   "main": "dist/main.js",
   "type": "commonjs",

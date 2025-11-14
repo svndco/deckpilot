@@ -3,6 +3,7 @@ import { Take, TakeTemplate } from '@shared/types'
 import './TakeInput.css'
 
 interface TakeInputProps {
+  recorderId: string
   currentTake: string
   history: Take[]
   templates: TakeTemplate[]
@@ -19,9 +20,14 @@ interface TakeInputProps {
   customText?: string
   onCustomTextStateChange?: (customText: string, includeCustom: boolean, setCustomText: (text: string) => void) => void
   oscTriggered?: boolean
+  includeShow?: boolean
+  includeDate?: boolean
+  includeShotTake?: boolean
+  includeCustom?: boolean
 }
 
 export default function TakeInput({
+  recorderId,
   currentTake,
   history,
   templates,
@@ -37,14 +43,18 @@ export default function TakeInput({
   onTemplateChange,
   customText: customTextProp = '',
   onCustomTextStateChange,
-  oscTriggered = false
+  oscTriggered = false,
+  includeShow: includeShowProp,
+  includeDate: includeDateProp,
+  includeShotTake: includeShotTakeProp,
+  includeCustom: includeCustomProp
 }: TakeInputProps) {
   const [inputValue, setInputValue] = useState(currentTake)
   const [showDropdown, setShowDropdown] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(selectedTemplateProp || '1')
-  const [includeShow, setIncludeShow] = useState(true)
-  const [includeDate, setIncludeDate] = useState(true)
-  const [includeShotTake, setIncludeShotTake] = useState(false)
+  const [includeShow, setIncludeShow] = useState(includeShowProp !== false)  // Default true if not set
+  const [includeDate, setIncludeDate] = useState(includeDateProp !== false)  // Default true if not set
+  const [includeShotTake, setIncludeShotTake] = useState(includeShotTakeProp === true)
   
   // Separate includeShow/includeDate/includeShotTake/includeCustom for each template
   const getTemplateSettings = (templateId: string) => {
@@ -69,9 +79,7 @@ export default function TakeInput({
     }
   }
   
-  const [includeCustom, setIncludeCustom] = useState(() => {
-    return getTemplateSettings(selectedTemplate || '1').includeCustom
-  })
+  const [includeCustom, setIncludeCustom] = useState(includeCustomProp !== false)  // Default true if not set
   const [customText, setCustomText] = useState(customTextProp)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -105,12 +113,19 @@ export default function TakeInput({
     }
   }, [selectedTemplate])
   
-  // Save includeShow to localStorage when it changes (per template)
+  // Save settings to both localStorage (for UI) and recorder (for backend)
   useEffect(() => {
     if (selectedTemplate) {
       localStorage.setItem(`includeShow_${selectedTemplate}`, includeShow.toString())
     }
-  }, [includeShow, selectedTemplate])
+    // Save to recorder
+    window.electronAPI.setRecorderTemplateSettings(recorderId, {
+      includeShow,
+      includeDate,
+      includeShotTake,
+      includeCustom
+    })
+  }, [includeShow, selectedTemplate, recorderId, includeDate, includeShotTake, includeCustom])
   
   // Save includeDate to localStorage when it changes (per template)
   useEffect(() => {

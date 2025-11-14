@@ -413,6 +413,42 @@ async function gotoTimecode(recorder: Recorder, timecode: string): Promise<boole
   return sendTransportCommand(recorder, `goto: timecode: ${timecode}`)
 }
 
+async function setVideoInput(recorder: Recorder, input: string): Promise<boolean> {
+  // HyperDeck protocol: "configuration: video input: SDI" or "configuration: video input: HDMI"
+  return new Promise((resolve) => {
+    const socket = new net.Socket()
+    let success = false
+
+    const timeout = setTimeout(() => {
+      socket.destroy()
+      resolve(false)
+    }, 3000)
+
+    socket.on('data', (chunk) => {
+      const response = chunk.toString()
+      // HyperDeck responds with "200 ok" on success
+      if (response.includes('200')) {
+        success = true
+        clearTimeout(timeout)
+        socket.destroy()
+        resolve(true)
+      }
+    })
+
+    socket.on('connect', () => {
+      // Send video input change command
+      socket.write(`configuration: video input: ${input}\n`)
+    })
+
+    socket.on('error', () => {
+      clearTimeout(timeout)
+      resolve(false)
+    })
+
+    socket.connect(HYPERDECK_PORT, recorder.ipAddress)
+  })
+}
+
 async function transportPlay(recorder: Recorder): Promise<boolean> {
   return sendTransportCommand(recorder, 'play')
 }
@@ -534,7 +570,12 @@ function initOSC() {
 
 function initOSCListener() {
   if (oscListener) {
-    oscListener.close()
+    console.log('Closing existing OSC listener...')
+    try {
+      oscListener.close()
+    } catch (e) {
+      console.error('Error closing OSC listener:', e)
+    }
     oscListener = null
   }
 
@@ -547,6 +588,8 @@ function initOSCListener() {
     return
   }
 
+  console.log(`Initializing OSC listener on ${listenerHost}:${listenerPort}...`)
+  
   oscListener = new osc.UDPPort({
     localAddress: listenerHost,
     localPort: listenerPort,
@@ -564,6 +607,11 @@ function initOSCListener() {
 
   oscListener.on('error', (error: any) => {
     console.error('OSC listener error:', error)
+    // Try to recover by reinitializing after a delay
+    setTimeout(() => {
+      console.log('Attempting to restart OSC listener...')
+      initOSCListener()
+    }, 5000)
   })
 
   oscListener.open()
@@ -622,34 +670,40 @@ function generateTakeName(recorder: Recorder): string {
   const template = recorder.selectedTemplate || '1'
   let parts: string[] = []
 
+  // Default include settings if not set (for backwards compatibility)
+  const includeShow = recorder.includeShow !== false  // Default true
+  const includeDate = recorder.includeDate !== false  // Default true
+  const includeShotTake = recorder.includeShotTake !== false  // Default true
+  const includeCustom = recorder.includeCustom !== false  // Default true
+
   // Template 1: Show (show name + date)
   if (template === '1') {
-    if (appState.showName) parts.push(appState.showName)
-    if (appState.dateFormat) {
+    if (includeShow && appState.showName) parts.push(appState.showName)
+    if (includeDate && appState.dateFormat) {
       const date = formatDate(appState.dateFormat)
       parts.push(date)
     }
   }
   // Template 2: Take (show + date + shot + custom + take)
   else if (template === '2') {
-    if (appState.showName) parts.push(appState.showName)
-    if (appState.dateFormat) {
+    if (includeShow && appState.showName) parts.push(appState.showName)
+    if (includeDate && appState.dateFormat) {
       const date = formatDate(appState.dateFormat)
       parts.push(date)
     }
-    if (recorder.shotNumber !== undefined) {
+    if (includeShotTake && recorder.shotNumber !== undefined) {
       parts.push(`S${String(recorder.shotNumber).padStart(2, '0')}`)
     }
-    if (recorder.customText) {
+    if (includeCustom && recorder.customText) {
       parts.push(recorder.customText)
     }
-    if (recorder.takeNumber !== undefined) {
+    if (includeShotTake && recorder.takeNumber !== undefined) {
       parts.push(`T${String(recorder.takeNumber).padStart(2, '0')}`)
     }
   }
   // Template 3: Custom (just custom text)
   else if (template === '3') {
-    if (recorder.customText) {
+    if (includeCustom && recorder.customText) {
       parts.push(recorder.customText)
     }
   }
@@ -1173,6 +1227,29 @@ ipcMain.handle(IPC_CHANNELS.GOTO_TIMECODE, async (_, recorderId: string, timecod
   
   const success = await gotoTimecode(recorder, timecode)
   return { success, message: success ? `Goto timecode ${timecode} command sent` : 'Failed to goto timecode' }
+})
+
+ipcMain.handle(IPC_CHANNELS.SET_VIDEO_INPUT, async (_, recorderId: string, input: string) => {
+  const recorder = appState.recorders.find(r => r.id === recorderId)
+  if (!recorder) return { success: false, message: 'Recorder not found' }
+  
+  const success = await setVideoInput(recorder, input)
+  return { success, message: success ? `Video input changed to ${input}` : 'Failed to change video input' }
+})
+
+ipcMain.handle(IPC_CHANNELS.SET_RECORDER_TEMPLATE_SETTINGS, async (_, recorderId: string, settings: { includeShow?: boolean; includeDate?: boolean; includeShotTake?: boolean; includeCustom?: boolean }) => {
+  const recorder = appState.recorders.find(r => r.id === recorderId)
+  if (!recorder) return { success: false }
+  
+  // Update recorder settings
+  recorder.includeShow = settings.includeShow
+  recorder.includeDate = settings.includeDate
+  recorder.includeShotTake = settings.includeShotTake
+  recorder.includeCustom = settings.includeCustom
+  
+  await saveState()
+  
+  return { success: true }
 })
 
 function broadcastAllRecordersToCompanion() {

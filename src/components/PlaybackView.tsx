@@ -127,8 +127,8 @@ export default function PlaybackView({
     console.log('Record button clicked for', recorderId)
   }
 
-  const handleToggleInput = (recorderId: string) => {
-    const sources = ['SDI', 'HDMI', 'Component']
+  const handleToggleInput = async (recorderId: string) => {
+    const sources = ['SDI', 'HDMI']
     const currentSource = inputSources[recorderId] || 'SDI'
     const currentIndex = sources.indexOf(currentSource)
     const nextIndex = (currentIndex + 1) % sources.length
@@ -136,8 +136,13 @@ export default function PlaybackView({
     
     setInputSources(prev => ({ ...prev, [recorderId]: nextSource }))
     
-    // TODO: Send command to HyperDeck to change input
-    console.log(`Changing ${recorderId} input to ${nextSource}`)
+    // Send command to HyperDeck to change video input
+    const result = await window.electronAPI.setVideoInput(recorderId, nextSource)
+    if (!result.success) {
+      console.error('Failed to change input:', result.message)
+      // Revert on failure
+      setInputSources(prev => ({ ...prev, [recorderId]: currentSource }))
+    }
   }
 
   const handleAddRecorder = () => {

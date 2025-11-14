@@ -77,6 +77,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gotoTimecode: (recorderId: string, timecode: string): Promise<{ success: boolean; message: string }> =>
     ipcRenderer.invoke(IPC_CHANNELS.GOTO_TIMECODE, recorderId, timecode),
 
+  setVideoInput: (recorderId: string, input: string): Promise<{ success: boolean; message: string }> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SET_VIDEO_INPUT, recorderId, input),
+
+  setRecorderTemplateSettings: (recorderId: string, settings: { includeShow?: boolean; includeDate?: boolean; includeShotTake?: boolean; includeCustom?: boolean }): Promise<{ success: boolean }> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SET_RECORDER_TEMPLATE_SETTINGS, recorderId, settings),
+
   onStateUpdated: (callback: (state: AppState) => void) => {
     const listener = (_event: any, state: AppState) => callback(state)
     ipcRenderer.on('state-updated', listener)
@@ -117,6 +123,8 @@ export interface ElectronAPI {
   gotoClip: (recorderId: string, clipId: number) => Promise<{ success: boolean; message: string }>
   playClip: (recorderId: string, clipId: number) => Promise<{ success: boolean; message: string }>
   gotoTimecode: (recorderId: string, timecode: string) => Promise<{ success: boolean; message: string }>
+  setVideoInput: (recorderId: string, input: string) => Promise<{ success: boolean; message: string }>
+  setRecorderTemplateSettings: (recorderId: string, settings: { includeShow?: boolean; includeDate?: boolean; includeShotTake?: boolean; includeCustom?: boolean }) => Promise<{ success: boolean }>
   onStateUpdated: (callback: (state: AppState) => void) => () => void
   onOscTriggered: (callback: (data: { recorderId: string; timestamp: number }) => void) => () => void
 }

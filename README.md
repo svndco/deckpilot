@@ -2,7 +2,7 @@
 
 A professional shot/take name management application for Blackmagic HyperDeck recorders with OSC integration for Bitfocus Companion.
 
-![Version](https://img.shields.io/badge/version-0.0.12-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0.24-blue.svg)
 
 ## Features
 

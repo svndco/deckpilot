@@ -28,6 +28,8 @@ declare global {
       gotoClip: (recorderId: string, clipId: number) => Promise<{ success: boolean; message: string }>
       playClip: (recorderId: string, clipId: number) => Promise<{ success: boolean; message: string }>
       gotoTimecode: (recorderId: string, timecode: string) => Promise<{ success: boolean; message: string }>
+      setVideoInput: (recorderId: string, input: string) => Promise<{ success: boolean; message: string }>
+      setRecorderTemplateSettings: (recorderId: string, settings: { includeShow?: boolean; includeDate?: boolean; includeShotTake?: boolean; includeCustom?: boolean }) => Promise<{ success: boolean }>
       onStateUpdated: (callback: (state: AppState) => void) => () => void
       onOscTriggered: (callback: (data: { recorderId: string; timestamp: number }) => void) => () => void
     }

@@ -34,7 +34,9 @@ increment_version() {
 
 build_electron() {
     print_section "Building Electron App"
-    increment_version
+    if [ "$SKIP_VERSION_INCREMENT" != "true" ]; then
+        increment_version
+    fi
     npm install
     npm run build
     print_success "Electron app built in ./release/"
@@ -42,8 +44,12 @@ build_electron() {
 
 build_companion() {
     print_section "Building Companion Module"
-    increment_version
+    if [ "$SKIP_VERSION_INCREMENT" != "true" ]; then
+        increment_version
+    fi
     cd companion-module-svndco-deckpilot
+    # Clean old tarballs to avoid confusion
+    rm -f svndco-deckpilot-*.tgz
     npm install --legacy-peer-deps
     npm run build
     npx companion-module-build
@@ -53,27 +59,57 @@ build_companion() {
     cd ..
 }
 
+build_both() {
+    # Increment version once, then build both without incrementing again
+    increment_version
+    SKIP_VERSION_INCREMENT=true build_electron
+    SKIP_VERSION_INCREMENT=true build_companion
+}
+
+build_all_and_install() {
+    # Increment version once, then build and install
+    increment_version
+    SKIP_VERSION_INCREMENT=true build_electron
+    SKIP_VERSION_INCREMENT=true build_companion
+    install_companion
+}
+
 install_companion() {
     print_section "Installing Companion Module"
     cd companion-module-svndco-deckpilot
-    TARBALL=$(ls svndco-deckpilot-*.tgz 2>/dev/null | head -n1)
+    # Get the most recently created tarball (latest build)
+    TARBALL=$(ls -t svndco-deckpilot-*.tgz 2>/dev/null | head -n1)
     if [ -z "$TARBALL" ]; then
         print_error "No tarball found. Build first."
         cd ..
         return 1
     fi
+    echo "Installing: $TARBALL"
     # Use constant module ID, not versioned name
     MODULE_ID="svndco-deckpilot"
     if [[ "$OSTYPE" == "darwin"* ]]; then
         COMPANION_DIR="$HOME/Library/Application Support/companion/modules"
+        DEV_DIR="$HOME/Library/Application Support/companion-module-dev"
     else
         COMPANION_DIR="$HOME/.companion/modules"
+        DEV_DIR="$HOME/.companion-module-dev"
     fi
+    
+    # Install to production directory (overwrite files, don't delete folder)
     TARGET="$COMPANION_DIR/$MODULE_ID"
-    rm -rf "$TARGET" 2>/dev/null || true
     mkdir -p "$TARGET"
+    # Extract and overwrite files in place
     tar -xzf "$TARBALL" -C "$TARGET" --strip-components=1
     print_success "Installed to: $TARGET"
+    
+    # Also copy to dev directory for version switching
+    mkdir -p "$DEV_DIR"
+    cp "$TARBALL" "$DEV_DIR/"
+    cd "$DEV_DIR"
+    tar -xzf "$TARBALL"
+    cd - > /dev/null
+    print_success "Also installed to dev directory: $DEV_DIR"
+    
     print_warning "RESTART COMPANION to load module"
     cd ..
 }
@@ -97,10 +133,10 @@ while true; do
     case $choice in
         1) build_electron; read -p "Press Enter..." ;;
         2) build_companion; read -p "Press Enter..." ;;
-        3) build_electron; build_companion; read -p "Press Enter..." ;;
+        3) build_both; read -p "Press Enter..." ;;
         4) install_companion; read -p "Press Enter..." ;;
         5) build_companion; install_companion; read -p "Press Enter..." ;;
-        6) build_electron; build_companion; install_companion; read -p "Press Enter..." ;;
+        6) build_all_and_install; read -p "Press Enter..." ;;
         0) echo "Goodbye!"; exit 0 ;;
         *) print_error "Invalid option"; read -p "Press Enter..." ;;
     esac
