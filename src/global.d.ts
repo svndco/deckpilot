@@ -17,6 +17,7 @@ declare global {
       incrementRecorderShot: (recorderId: string) => Promise<{ shotNumber: number; takeNumber: number } | null>
       incrementRecorderTake: (recorderId: string) => Promise<number | null>
       setOscSettings: (oscSettings: any) => Promise<any>
+      setCmndSettings: (cmndSettings: any) => Promise<any>
       exportShow: () => Promise<{ success: boolean; filePath?: string; message?: string }>
       importShow: () => Promise<{ success: boolean; filePath?: string; message?: string }>
       newShow: () => Promise<{ success: boolean; message?: string }>
