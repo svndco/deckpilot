@@ -62,6 +62,14 @@ export interface OscSettings {
   listenerEnabled?: boolean  // Enable/disable OSC listener
 }
 
+export interface CmndSettings {
+  enabled: boolean  // Enable/disable cmnd integration
+  hubUrl?: string  // cmndHub WebSocket URL (default: ws://localhost:5000/ws)
+  nodeId?: string  // Unique node ID (auto-generated if not set)
+  showId?: string  // Optional show ID to associate with
+  metadata?: Record<string, any>  // Additional metadata for the node
+}
+
 export interface AppState {
   recorders: Recorder[]
   currentTakes: Record<string, string>  // recorderId -> takeName
@@ -71,6 +79,7 @@ export interface AppState {
   showName?: string
   dateFormat?: DateFormat
   oscSettings?: OscSettings
+  cmndSettings?: CmndSettings
 }
 
 // IPC Channel names for Electron
@@ -103,7 +112,8 @@ export const IPC_CHANNELS = {
   GOTO_TIMECODE: 'goto-timecode',
   NEW_SHOW: 'new-show',
   SET_VIDEO_INPUT: 'set-video-input',
-  SET_RECORDER_TEMPLATE_SETTINGS: 'set-recorder-template-settings'
+  SET_RECORDER_TEMPLATE_SETTINGS: 'set-recorder-template-settings',
+  SET_CMND_SETTINGS: 'set-cmnd-settings'
 } as const
 
 // WebSocket message types for Companion integration

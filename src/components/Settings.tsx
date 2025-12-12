@@ -1,24 +1,34 @@
 import { useState } from 'react'
-import { OscSettings } from '@shared/types'
+import { OscSettings, CmndSettings } from '@shared/types'
 import './Settings.css'
 
 interface SettingsProps {
   oscSettings: OscSettings
+  cmndSettings?: CmndSettings
   onSave: (settings: OscSettings) => void
+  onSaveCmnd: (settings: CmndSettings) => void
   onClose: () => void
 }
 
-export default function Settings({ oscSettings, onSave, onClose }: SettingsProps) {
+export default function Settings({ oscSettings, cmndSettings, onSave, onSaveCmnd, onClose }: SettingsProps) {
+  // OSC settings
   const [enabled, setEnabled] = useState(oscSettings.enabled)
   const [sendHost, setSendHost] = useState(oscSettings.sendHost || '127.0.0.1')
   const [companionPort, setCompanionPort] = useState(oscSettings.companionPort || 8014)
   const [listenerEnabled, setListenerEnabled] = useState(oscSettings.listenerEnabled !== false)
   const [listenerHost, setListenerHost] = useState(oscSettings.listenerHost || '0.0.0.0')
   const [listenerPort, setListenerPort] = useState(oscSettings.listenerPort || 8012)
+
+  // cmnd settings
+  const [cmndEnabled, setCmndEnabled] = useState(cmndSettings?.enabled || false)
+  const [hubUrl, setHubUrl] = useState(cmndSettings?.hubUrl || 'ws://localhost:5000/ws')
+  const [nodeId, setNodeId] = useState(cmndSettings?.nodeId || '')
+  const [showId, setShowId] = useState(cmndSettings?.showId || '')
+
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   function handleSave() {
-    const settings: OscSettings = {
+    const oscSettingsData: OscSettings = {
       enabled,
       sendHost,
       companionPort,
@@ -26,8 +36,17 @@ export default function Settings({ oscSettings, onSave, onClose }: SettingsProps
       listenerHost,
       listenerPort
     }
-    console.log('Settings component - calling onSave with:', settings)
-    onSave(settings)
+
+    const cmndSettingsData: CmndSettings = {
+      enabled: cmndEnabled,
+      hubUrl,
+      nodeId: nodeId || undefined,
+      showId: showId || undefined
+    }
+
+    console.log('Settings component - calling onSave with:', oscSettingsData, cmndSettingsData)
+    onSave(oscSettingsData)
+    onSaveCmnd(cmndSettingsData)
     onClose()
   }
 
@@ -194,7 +213,111 @@ export default function Settings({ oscSettings, onSave, onClose }: SettingsProps
           </div>
 
           <hr style={{ margin: '20px 0', borderColor: '#444' }} />
-          
+
+          <h3>cmnd Integration</h3>
+
+          <div className="setting-row">
+            <label>
+              <input
+                type="checkbox"
+                checked={cmndEnabled}
+                onChange={(e) => setCmndEnabled(e.target.checked)}
+              />
+              Enable cmnd Integration
+            </label>
+            <small style={{ color: '#888', marginTop: '4px', display: 'block' }}>
+              Connect DeckPilot to cmndHub for centralized monitoring and control
+            </small>
+          </div>
+
+          <div className="setting-row">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+              <div>
+                <label style={{ color: '#b0b0b0', fontSize: '12px' }}>Hub WebSocket URL</label>
+                <input
+                  type="text"
+                  value={hubUrl}
+                  onChange={(e) => setHubUrl(e.target.value)}
+                  placeholder="ws://localhost:5000/ws"
+                  disabled={!cmndEnabled}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    background: cmndEnabled ? '#2d2d2d' : '#1a1a1a',
+                    border: '1px solid #3d3d3d',
+                    borderRadius: '4px',
+                    color: cmndEnabled ? '#fff' : '#666',
+                    fontSize: '13px',
+                    fontFamily: 'monospace'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ color: '#b0b0b0', fontSize: '12px' }}>Node ID (optional)</label>
+                <input
+                  type="text"
+                  value={nodeId}
+                  onChange={(e) => setNodeId(e.target.value)}
+                  placeholder="Auto-generated if empty"
+                  disabled={!cmndEnabled}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    background: cmndEnabled ? '#2d2d2d' : '#1a1a1a',
+                    border: '1px solid #3d3d3d',
+                    borderRadius: '4px',
+                    color: cmndEnabled ? '#fff' : '#666',
+                    fontSize: '13px',
+                    fontFamily: 'monospace'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ color: '#b0b0b0', fontSize: '12px' }}>Show ID (optional)</label>
+                <input
+                  type="text"
+                  value={showId}
+                  onChange={(e) => setShowId(e.target.value)}
+                  placeholder="Link to cmndHub show"
+                  disabled={!cmndEnabled}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    background: cmndEnabled ? '#2d2d2d' : '#1a1a1a',
+                    border: '1px solid #3d3d3d',
+                    borderRadius: '4px',
+                    color: cmndEnabled ? '#fff' : '#666',
+                    fontSize: '13px',
+                    fontFamily: 'monospace'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            marginTop: '12px',
+            padding: '10px',
+            background: '#1e1e1e',
+            border: '1px solid #3d3d3d',
+            borderRadius: '4px'
+          }}>
+            <h4 style={{ margin: '0 0 6px 0', fontSize: '11px', color: '#b0b0b0' }}>Supported Commands from cmndHub</h4>
+            <div style={{ fontSize: '10px', color: '#888', lineHeight: '1.6' }}>
+              <div><code style={{ color: '#4ec9b0' }}>set_take_name</code> — Update recorder take name</div>
+              <div><code style={{ color: '#4ec9b0' }}>start_recording</code> — Start recording on recorder</div>
+              <div><code style={{ color: '#4ec9b0' }}>stop_recording</code> — Stop recording on recorder</div>
+              <div><code style={{ color: '#4ec9b0' }}>increment_take</code> — Increment take number</div>
+              <div><code style={{ color: '#4ec9b0' }}>increment_shot</code> — Increment shot number</div>
+              <div><code style={{ color: '#4ec9b0' }}>get_recorders</code> — Get all recorders status</div>
+              <div><code style={{ color: '#4ec9b0' }}>get_status</code> — Get DeckPilot status</div>
+            </div>
+          </div>
+
+          <hr style={{ margin: '20px 0', borderColor: '#444' }} />
+
           <h3>Show File Management</h3>
           
           <div className="setting-row">

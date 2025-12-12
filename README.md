@@ -1,6 +1,6 @@
 # DeckPilot
 
-A professional shot/take name management application for Blackmagic HyperDeck recorders with OSC integration for Bitfocus Companion.
+A professional shot/take name management application for Blackmagic HyperDeck recorders with OSC integration for Bitfocus Companion and cmnd integration for distributed system management.
 
 ![Version](https://img.shields.io/badge/version-0.0.24-blue.svg)
 
@@ -23,6 +23,13 @@ A professional shot/take name management application for Blackmagic HyperDeck re
 - **Per-Recorder Variables** - Automatic variable creation for each recorder's take data
 - **Stream Deck Ready** - Full integration with Stream Deck buttons and triggers
 - **Configurable Settings** - Adjustable OSC host, ports, and listener options
+
+### cmnd Integration
+- **Distributed System Support** - Integrate with cmndHub for centralized monitoring and control
+- **Remote Command Execution** - Control DeckPilot remotely from cmndHub dashboard
+- **Real-time Metrics** - Report recorder status, disk space, and recording state to cmndHub
+- **Multi-Site Coordination** - Manage multiple DeckPilot instances across distributed locations
+- **Fleet Management** - Centralized control of all HyperDeck recorders via cmndHub
 
 ### User Interface
 - **Clean Dark Theme** - Professional, easy-to-read interface
@@ -197,6 +204,107 @@ All builds output to `./release/` directory.
 - **[OSC_COMMANDS.md](OSC_COMMANDS.md)** - Complete OSC protocol reference and command formats
 - **[STREAMDECK_SETUP.md](STREAMDECK_SETUP.md)** - Stream Deck button examples and workflows
 
+### cmnd Integration
+
+**DeckPilot can integrate with cmndHub** for centralized monitoring and control across distributed production environments.
+
+#### What is cmnd?
+
+**cmnd** is a distributed command & control system for monitoring and managing servers across virtual production sites. When integrated with cmndHub, DeckPilot becomes a managed node that reports status and accepts remote commands.
+
+#### Setup
+
+1. **Enable cmnd in DeckPilot Settings**:
+   - Click the Settings icon (gear) in DeckPilot
+   - Scroll to "cmnd Integration" section
+   - Check "Enable cmnd Integration"
+   - Configure Hub URL (default: `ws://localhost:5000/ws`)
+   - Optionally set Node ID and Show ID
+   - Click "Save Settings"
+
+2. **Verify Connection**:
+   - DeckPilot will connect to cmndHub via WebSocket
+   - Check cmndHub logs for authentication message
+   - DeckPilot appears as a node in cmndHub dashboard
+
+#### What DeckPilot Reports to cmndHub
+
+**Authentication (on connect):**
+- Node ID (auto-generated UUID)
+- Hostname and platform
+- DeckPilot version
+- Node type: "deckpilot"
+
+**Metrics (every 30 seconds):**
+- `recorders_total` - Total number of recorders configured
+- `recorders_online` - Number of online/connected recorders
+- `recorders_recording` - Number of recorders currently recording
+- `total_disk_space_gb` - Combined disk space across all HyperDecks
+
+**Heartbeat (every 30 seconds):**
+- Keeps connection alive
+- Updates last-seen timestamp in cmndHub
+
+#### Remote Commands from cmndHub
+
+DeckPilot accepts these commands from cmndHub:
+
+| Command | Parameters | Description |
+|---------|------------|-------------|
+| `set_take_name` | `recorderId`, `takeName` | Update take name for specific recorder |
+| `start_recording` | `recorderId` | Start recording on recorder |
+| `stop_recording` | `recorderId` | Stop recording on recorder |
+| `increment_take` | `recorderId` | Increment take number |
+| `increment_shot` | `recorderId` | Increment shot number (resets take to 1) |
+| `get_recorders` | none | Get list of all recorders with status |
+| `get_status` | none | Get DeckPilot overall status |
+
+**Example command execution from cmndHub:**
+```javascript
+// Send command to DeckPilot node
+{
+  "type": "command",
+  "command_id": "cmd-123",
+  "node_id": "deckpilot-uuid",
+  "command": "set_take_name",
+  "params": {
+    "recorderId": "recorder-1",
+    "takeName": "ShowName_S01_T05"
+  }
+}
+```
+
+#### Use Cases
+
+**Multi-Site Production:**
+- Monitor all DeckPilot instances from central cmndHub
+- Coordinate take names across distributed locations
+- Synchronized recording triggers across sites
+
+**Fleet Management:**
+- Centralized view of all HyperDeck recorders
+- Remote take name updates without local access
+- Disk space monitoring and alerts
+
+**Automation:**
+- Script complex recording workflows via cmndHub API
+- Integrate with other production tools through cmndHub
+- Create custom dashboards and monitoring
+
+#### Architecture
+
+```
+cmndHub (Central Server)
+    ↕ WebSocket (port 5000)
+DeckPilot Node 1 (Site A)
+    ↕ HyperDeck Protocol (port 9993)
+HyperDeck Recorders (Site A)
+
+DeckPilot Node 2 (Site B)
+    ↕ HyperDeck Protocol (port 9993)
+HyperDeck Recorders (Site B)
+```
+
 ## Configuration Files
 
 Configuration is stored in:
@@ -209,7 +317,8 @@ Configuration is stored in:
 ```
 deckpilot/
 ├── electron/           # Electron main process
-│   ├── main.ts        # Main process, OSC handling, IPC
+│   ├── main.ts        # Main process, OSC/cmnd handling, IPC
+│   ├── cmnd-client.ts # cmnd WebSocket client
 │   ├── preload.ts     # Preload script for IPC bridge
 │   └── build.js       # Build script
 ├── src/               # React application

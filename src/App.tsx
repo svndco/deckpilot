@@ -199,6 +199,11 @@ function App() {
     setState(prev => prev ? { ...prev, oscSettings } : null)
   }
 
+  async function handleSaveCmndSettings(cmndSettings: any) {
+    await window.electronAPI.setCmndSettings(cmndSettings)
+    setState(prev => prev ? { ...prev, cmndSettings } : null)
+  }
+
   const handleCustomTextStateChange = useCallback((customText: string, includeCustom: boolean, setCustomText: (text: string) => void) => {
     setCustomTextState({ customText, includeCustom, setCustomText })
   }, [])
@@ -406,7 +411,12 @@ function App() {
             listenerPort: 8012,
             listenerEnabled: true
           }}
+          cmndSettings={state.cmndSettings || {
+            enabled: false,
+            hubUrl: 'ws://localhost:5000/ws'
+          }}
           onSave={handleSaveOscSettings}
+          onSaveCmnd={handleSaveCmndSettings}
           onClose={() => setShowSettings(false)}
         />
       )}

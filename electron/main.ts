@@ -1,10 +1,11 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import path from 'path'
-import { AppState, IPC_CHANNELS, Recorder, DateFormat } from '../shared/types'
+import { AppState, IPC_CHANNELS, Recorder, DateFormat, CmndSettings } from '../shared/types'
 import fs from 'fs/promises'
 // WebSocket removed - using OSC only
 import net from 'net'
 import * as osc from 'osc'
+import { CmndClient } from './cmnd-client'
 
 const isDev = !app.isPackaged
 const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json')
@@ -20,6 +21,9 @@ const BROADCAST_INTERVAL = 10000 // Broadcast to Companion every 10 seconds
 // OSC client and listener
 let oscPort: any = null
 let oscListener: any = null
+
+// cmnd client
+let cmndClient: CmndClient | null = null
 
 let appState: AppState = {
   recorders: [],
@@ -52,6 +56,10 @@ let appState: AppState = {
     enabled: true,  // Global OSC enable/disable
     listenerPort: 8012,  // Default port for incoming OSC commands
     listenerEnabled: true  // Enable OSC listener by default
+  },
+  cmndSettings: {
+    enabled: false,  // cmnd integration disabled by default
+    hubUrl: 'ws://localhost:5000/ws'
   }
 }
 
@@ -617,6 +625,199 @@ function initOSCListener() {
   oscListener.open()
 }
 
+// cmnd Integration
+function initCmnd() {
+  if (!appState.cmndSettings || !appState.cmndSettings.enabled) {
+    console.log('⚠️  cmnd integration disabled')
+    return
+  }
+
+  console.log('🚀 Initializing cmnd client...')
+  cmndClient = new CmndClient(appState.cmndSettings)
+
+  // Set callback to provide recorder data for metrics
+  cmndClient.setGetRecordersCallback(() => appState.recorders)
+
+  // Set command handler
+  cmndClient.setCommandHandler(handleCmndCommand)
+
+  // Connect to cmndHub
+  cmndClient.connect()
+}
+
+async function handleCmndCommand(command: string, params: any): Promise<any> {
+  console.log(`📥 Handling cmnd command: ${command}`, params)
+
+  switch (command) {
+    case 'set_take_name':
+      if (!params.recorderId || !params.takeName) {
+        throw new Error('Missing recorderId or takeName parameter')
+      }
+      return await setRecorderTakeName(params.recorderId, params.takeName)
+
+    case 'increment_take':
+      if (!params.recorderId) {
+        throw new Error('Missing recorderId parameter')
+      }
+      return await incrementRecorderTake(params.recorderId)
+
+    case 'increment_shot':
+      if (!params.recorderId) {
+        throw new Error('Missing recorderId parameter')
+      }
+      return await incrementRecorderShot(params.recorderId)
+
+    case 'start_recording':
+      if (!params.recorderId) {
+        throw new Error('Missing recorderId parameter')
+      }
+      return await startRecording(params.recorderId)
+
+    case 'stop_recording':
+      if (!params.recorderId) {
+        throw new Error('Missing recorderId parameter')
+      }
+      return await stopRecording(params.recorderId)
+
+    case 'get_recorders':
+      return appState.recorders.map(r => ({
+        id: r.id,
+        name: r.name,
+        ipAddress: r.ipAddress,
+        online: r.online,
+        transportStatus: r.transportStatus,
+        diskSpaceGB: r.diskSpaceGB
+      }))
+
+    case 'get_status':
+      return {
+        recorders: appState.recorders.length,
+        online: appState.recorders.filter(r => r.online).length,
+        recording: appState.recorders.filter(r => r.transportStatus === 'record').length
+      }
+
+    default:
+      throw new Error(`Unknown command: ${command}`)
+  }
+}
+
+async function startRecording(recorderId: string): Promise<any> {
+  const recorder = appState.recorders.find(r => r.id === recorderId)
+  if (!recorder) {
+    throw new Error(`Recorder not found: ${recorderId}`)
+  }
+
+  const success = await sendTransportCommand(recorder, 'record')
+  return { success, recorderId, command: 'record' }
+}
+
+async function stopRecording(recorderId: string): Promise<any> {
+  const recorder = appState.recorders.find(r => r.id === recorderId)
+  if (!recorder) {
+    throw new Error(`Recorder not found: ${recorderId}`)
+  }
+
+  const success = await sendTransportCommand(recorder, 'stop')
+  return { success, recorderId, command: 'stop' }
+}
+
+async function incrementRecorderTake(recorderId: string): Promise<number> {
+  const recorder = appState.recorders.find(r => r.id === recorderId)
+  if (!recorder) {
+    throw new Error(`Recorder not found: ${recorderId}`)
+  }
+
+  if (recorder.takeNumber !== undefined) {
+    recorder.takeNumber++
+    await saveState()
+    broadcastToRenderer('state-updated', appState)
+    return recorder.takeNumber
+  }
+
+  throw new Error('Recorder does not have take numbering enabled')
+}
+
+async function incrementRecorderShot(recorderId: string): Promise<number> {
+  const recorder = appState.recorders.find(r => r.id === recorderId)
+  if (!recorder) {
+    throw new Error(`Recorder not found: ${recorderId}`)
+  }
+
+  if (recorder.shotNumber !== undefined) {
+    recorder.shotNumber++
+    recorder.takeNumber = 1 // Reset take number
+    await saveState()
+    broadcastToRenderer('state-updated', appState)
+    return recorder.shotNumber
+  }
+
+  throw new Error('Recorder does not have shot numbering enabled')
+}
+
+async function setRecorderTakeName(recorderId: string, takeName: string): Promise<any> {
+  const recorder = appState.recorders.find(r => r.id === recorderId)
+  if (!recorder) {
+    throw new Error(`Recorder not found: ${recorderId}`)
+  }
+
+  // Update current take
+  appState.currentTakes[recorderId] = takeName
+
+  // Send to HyperDeck if online
+  if (recorder.online) {
+    const success = await sendHyperDeckTakeName(recorder, takeName)
+    if (!success) {
+      throw new Error('Failed to send take name to HyperDeck')
+    }
+  }
+
+  // Broadcast via OSC if enabled
+  if (oscPort && appState.oscSettings?.enabled) {
+    broadcastTakeToOSC(recorder, takeName)
+  }
+
+  await saveState()
+  broadcastToRenderer('state-updated', appState)
+
+  return { success: true, recorderId, takeName }
+}
+
+async function sendHyperDeckTakeName(recorder: Recorder, takeName: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = new net.Socket()
+    let success = false
+
+    const timeout = setTimeout(() => {
+      socket.destroy()
+      resolve(false)
+    }, 3000)
+
+    socket.on('data', (chunk) => {
+      const response = chunk.toString()
+      if (response.includes('200')) {
+        success = true
+        clearTimeout(timeout)
+        socket.destroy()
+        resolve(true)
+      }
+    })
+
+    socket.on('connect', () => {
+      socket.write(`disk select: slot id: 1\n`)
+      setTimeout(() => {
+        socket.write(`disk select: video filename: ${takeName}\n`)
+      }, 100)
+    })
+
+    socket.on('error', () => {
+      clearTimeout(timeout)
+      resolve(false)
+    })
+
+    socket.connect(HYPERDECK_PORT, recorder.ipAddress)
+  })
+}
+
 function sanitizeOSCName(name: string): string {
   return name.replace(/[^a-zA-Z0-9]/g, '_')
 }
@@ -1032,6 +1233,21 @@ ipcMain.handle(IPC_CHANNELS.SET_OSC_SETTINGS, (_, oscSettings) => {
   return appState.oscSettings
 })
 
+ipcMain.handle(IPC_CHANNELS.SET_CMND_SETTINGS, (_, cmndSettings: CmndSettings) => {
+  console.log('Main process - received cmnd settings:', cmndSettings)
+  appState.cmndSettings = cmndSettings
+  saveState()
+
+  // Initialize or update cmnd client
+  if (!cmndClient && cmndSettings.enabled) {
+    initCmnd()
+  } else if (cmndClient) {
+    cmndClient.updateSettings(cmndSettings)
+  }
+
+  return appState.cmndSettings
+})
+
 ipcMain.handle(IPC_CHANNELS.EXPORT_SHOW, async () => {
   try {
     const result = await dialog.showSaveDialog(mainWindow!, {
@@ -1268,6 +1484,7 @@ app.whenReady().then(async () => {
   createWindow()
   initOSC()
   initOSCListener()
+  initCmnd()
   startStatusChecking()
   
   // Broadcast all recorders to Companion after a short delay (to ensure OSC is ready)

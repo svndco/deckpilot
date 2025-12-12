@@ -44,6 +44,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setOscSettings: (oscSettings: any): Promise<any> =>
     ipcRenderer.invoke(IPC_CHANNELS.SET_OSC_SETTINGS, oscSettings),
 
+  setCmndSettings: (cmndSettings: any): Promise<any> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SET_CMND_SETTINGS, cmndSettings),
+
   exportShow: (): Promise<{ success: boolean; filePath?: string; message?: string }> =>
     ipcRenderer.invoke(IPC_CHANNELS.EXPORT_SHOW),
 
@@ -112,6 +115,7 @@ export interface ElectronAPI {
   incrementRecorderShot: (recorderId: string) => Promise<{ shotNumber: number; takeNumber: number } | null>
   incrementRecorderTake: (recorderId: string) => Promise<number | null>
   setOscSettings: (oscSettings: any) => Promise<any>
+  setCmndSettings: (cmndSettings: any) => Promise<any>
   exportShow: () => Promise<{ success: boolean; filePath?: string; message?: string }>
   importShow: () => Promise<{ success: boolean; filePath?: string; message?: string }>
   newShow: () => Promise<{ success: boolean; message?: string }>
